@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Intranet Grupo Cimal Perú</title>
 	<link rel="stylesheet" href="css/estilos.css">
-	<link rel="icon" href="#" sizes="32x32" /> <!-- favicon -->
+	<link rel="icon" href="img/favicon.png" sizes="32x32" /> <!-- favicon -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -16,30 +16,30 @@
 <body>
 	<div class="row" id="app">
 		<section class="col col-md-3 p-4 " id="menu">
-			<h3>Sistema de Servicios</h3>
+			<div class="mx-auto mb-3"><img src="img/logo.jpeg" class="img-fluid"></div>
 			<div class="list-group">
-				<a href="index.html" type="button" class="list-group-item list-group-item-action" aria-current="true">
+				<a href="principal.html" type="button" class="list-group-item list-group-item-action" aria-current="true">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-house"></i> Inicio</span> 
 				</a>
 				<a href="contratos.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-file-medical"></i> Contratos</span> 
 				</a>
-				<a type="button" class="list-group-item list-group-item-action">
+				<a href="usuarios.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Usuarios</span> 
 				</a>
 				<a type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-file-bar-graph"></i> Reportes</span> 
 				</a>
-				<a type="button" class="list-group-item list-group-item-action">
+				<a href="perfil.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-gear-fill"></i> Mi perfil</span> 
 				</a>
 			</div>
 		</section>
 		<section class="col col-md-9 container my-3 p-4 border-start " >
-			<h1 class="text-start">Detalle de registro</h1>
+			<h1 class="text-start">Registro: Cotización de servicios de agua luz - El Tambo (Etapa III)</h1>
 			<div class="card mb-3">
 				<div class="card-body">
-					<h5 class="fw-bold">Nombre de Contrato</h5>
+					<h5 class="fw-bold">Datos iniciales</h5>
 					<div class="row row-cols-md-3">
 						<div class="col">
 							<label class="fw-bold">Creador</label>
@@ -54,28 +54,55 @@
 							<p class="mb-0">Iniciado</p>
 						</div>
 					</div>
-					<div class="row row-cols-2 mt-2">
-						<div class="col">
-							<p class="mb-0">Documentos iniciales:</p>
-							<ol>
-								<li><a class="text-decoration-none" href="#!">Documento de prueba N° 002.pdf</a></li>
-							</ol>
-						</div>
-						<div class="col">
-							<p class="mb-0">Compartido con los usuarios</p>
-							<ol>
-								<li>Caliluz Roma</li>
-							</ol>
-						</div>
+				</div>
+			</div>
+
+			<div class="d-flex d-grid justify-content-between my-4">
+				<button class="btn btn-outline-success " data-bs-toggle="modal" data-bs-target="#modalEditar"><i class="bi bi-pencil-square"></i> Editar valores inciales</button>
+				<button class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#modalEtapa"><i class="bi bi-file-arrow-up"></i> Cambiar etapa</button>
+				<button class="btn btn-outline-warning " data-bs-toggle="modal" data-bs-target="#modalAsignar"><i class="bi bi-person-plus"></i> Asignación de usuarios</button>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<p class="fw-bold">Documentos iniciales</p>
+					<div class="list-group">
+						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+							<div class="d-flex w-100 justify-content-between">
+								<p class="mb-1">Contrato vacío de legalización</p>
+								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Remover</button>
+							</div>
+							<small>Agregado: 14 de noviembre de 2024</small>
+						</a>
+						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+							<div class="d-flex w-100 justify-content-between">
+								<p class="mb-1">Revisión final de contrato</p>
+								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Remover</button>
+							</div>
+							<small>Agregado: 14 de noviembre de 2024</small>
+						</a>
+					</div>
+				</div>
+				<div class="col">
+					<p class="fw-bold">Usuarios con acceso</p>
+					<div class="list-group">
+						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+							<div class="d-flex w-100 justify-content-between">
+								<p class="mb-1">Caliluz Ramos</p>
+								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-ban"></i> Restringir</button>
+							</div>
+						</a>
+						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+							<div class="d-flex w-100 justify-content-between">
+								<p class="mb-1">Carlos Alex Pariona</p>
+								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-ban"></i> Restringir</button>
+							</div>
+						</a>
 					</div>
 				</div>
 			</div>
-			<div class="d-flex d-grid justify-content-between my-4">
-				<button class="btn btn-outline-primary "><i class="bi bi-plus-circle"></i> Adjuntar documento nuevo</button>
-				<button class="btn btn-outline-warning "><i class="bi bi-plus-circle"></i> Asignación de usuarios</button>
-			</div>
 
-			<div class="card">
+			<div class="card my-3">
 				<div class="card-body">
 					<h5 class="my-3 fw-bold">Respuesta de colaboradores</h5>
 					<div class="my-3 table-responsive">
@@ -96,8 +123,7 @@
 									<td>Juan Pérez</td>
 									<td><a href="#!" class="text-decoration-none text-dark"><i class="bi bi-file-earmark-arrow-down-fill"></i></a></td>
 									<td class="d-flex d-grid gap-1">
-										<button class="btn btn-sm btn-outline-success border-0"><i class="bi bi-check"></i></button>
-										<button class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-x"></i></button>
+										<button class="btn btn-sm btn-outline-danger border-0" title="Eliminar respuesta"><i class="bi bi-x-lg"></i></button>
 									</td>
 								</tr>
 							</tbody>
@@ -108,12 +134,19 @@
 
 			<div class="card my-2">
 				<div class="card-body">
-					<h5 class="fw-bold">Agregar respuesta de colaboración</h5>
+					<h5 class="fw-bold">Agregar documento</h5>
 					<p class="my-2">Rellene todos los campos:</p>
 					<div class="row ">
 						<div class="col-6">
+							<label for="">Tipo de ajunto</label>
+							<select class="form-select mb-3" id="sltTipoDocumento">
+								<option value="1">Principal</option>
+								<option value="2">Respuesta</option>
+							</select>
+						</div>
+						<div class="col-6">
 							<label for="">Asunto</label>
-							<input type="text" class="form-control">
+							<input type="text" class="form-control mb-3 ">
 						</div>
 						<div class="col-6">
 							<label for="">Fecha</label>
@@ -130,6 +163,71 @@
 				</div>
 			</div>
 
+		</section>
+
+		<section>
+			<div class="modal fade" id="modalAsignar" tabindex="-1" role="dialog" aria-labelledby="asignarUsuariosModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header border-0">
+							<h5 class="modal-title" id="miModalLabel">Asignación de usuarios</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<p>Seleccione un usuario para que pueda visualizar los registros.</p>
+							<select class="form-select">
+								<option value="">Usuarios</option>
+								<option value="carlos">Carlos</option>
+								<option value="rosario">Rosario</option>
+							</select>
+						</div>
+						<div class="modal-footer border-0">
+							<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="bi bi-person-plus"></i> Asignar usuario</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal fade" id="modalEditar" tabindex="-1" role="dialog" aria-labelledby="asignarUsuariosModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header border-0">
+							<h5 class="modal-title" id="miModalLabel">Edición de valores</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<p>Nombre del servicio principal</p>
+							<input type="text" class="form-control">
+						</div>
+						<div class="modal-footer border-0">
+							<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="bi bi-pencil-square"></i> Editar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal fade" id="modalEtapa" tabindex="-1" role="dialog" aria-labelledby="asignarUsuariosModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header border-0">
+							<h5 class="modal-title" id="miModalLabel">Edición de etapa</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<p>Elija una nueva etapa</p>
+							<select class="form-select" id="sltEtapa">
+								<option value="1">Iniciado</option>
+								<option value="2">Recepcionado</option>
+								<option value="3">Por recepcionar</option>
+								<option value="4">En proceso</option>
+								<option value="5">Culminado</option>
+								<option value="6">Anulado</option>
+							</select>
+						</div>
+						<div class="modal-footer border-0">
+							<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="bi bi-pencil-square"></i> Editar</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</section>
 	</div>
 
