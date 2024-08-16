@@ -16,7 +16,7 @@
 <body>
 	<div class="row" id="app">
 		<section class="col col-md-3 p-4 " id="menu">
-			<div class="mx-auto mb-3"><img src="img/logo.jpeg" class="img-fluid"></div>
+			<div class="mx-auto w-75 mb-3"><img src="img/logo.jpeg" class="img-fluid"></div>
 			<div class="list-group">
 				<a href="principal.html" type="button" class="list-group-item list-group-item-action" aria-current="true">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-house"></i> Inicio</span> 
@@ -42,67 +42,73 @@
 				<div class="col-md-6">
 					<div class="mb-3">
 						<label for="apellidoPaterno">Apellido Paterno</label>
-						<input type="text" class="form-control" id="apellidoPaterno" autocomplete="off">
+						<input type="text" class="form-control" id="apellidoPaterno" autocomplete="off" v-model="registro.paterno">
 					</div>
 					<div class="mb-3">
 						<label for="apellidoMaterno">Apellido Materno</label>
-						<input type="text" class="form-control" id="apellidoMaterno" autocomplete="off">
+						<input type="text" class="form-control" id="apellidoMaterno" autocomplete="off" v-model="registro.materno">
 					</div>
 					<div class="mb-3">
 						<label for="nombres">Nombres</label>
-						<input type="text" class="form-control" id="nombres" autocomplete="off">
+						<input type="text" class="form-control" id="nombres" autocomplete="off" v-model="registro.nombres">
 					</div>
 					<div class="mb-3">
 						<label for="tipoDocumento">Tipo de Documento</label>
-						<select class="form-select" id="tipoDocumento">
+						<select class="form-select" id="tipoDocumento" v-model="registro.tipo">
 							<option value="dni">DNI</option>
 							<option value="carnetExtranjeria">Carnet de Extranjería</option>
 						</select>
 					</div>
 					<div class="mb-3">
 						<label for="dni">DNI</label>
-						<input type="text" class="form-control" id="dni" maxlength="15" autocomplete="off">
+						<input type="text" class="form-control" id="dni" maxlength="15" autocomplete="off" v-model="registro.dni">
+					</div>
+					<div class="mb-3">
+						<label for="clave">Contraseña</label>
+						<input type="text" class="form-control" id="clave" maxlength="15" autocomplete="off" v-model="registro.clave">
 					</div>
 				</div>
 				<div class="col-md-6">
 					<div class="mb-3">
 						<label for="celular1">Celular 1</label>
-						<input type="text" class="form-control" id="celular1" autocomplete="off">
+						<input type="text" class="form-control" id="celular1" autocomplete="off" v-model="registro.celular1">
 					</div>
 					<div class="mb-3">
 						<label for="celular2">Celular 2</label>
-						<input type="text" class="form-control" id="celular2" autocomplete="off">
+						<input type="text" class="form-control" id="celular2" autocomplete="off" v-model="registro.celular2">
 					</div>
 					<div class="mb-3">
 						<label for="pais">País</label>
-						<select name="" id="sltPais" class="form-select">
+						<select name="" id="sltPais" class="form-select" v-model="registro.pais">
 							<option value="1">Perú</option>
 							<option value="2">Extranjero</option>
 						</select>
 					</div>
 					<div class="mb-3">
 						<label for="departamento">Departamento</label>
-						<select class="form-select" id="departamento">
+						<select class="form-select" id="departamento" v-model="registro.departamento">
 							<!-- opciones de departamentos -->
 						</select>
 					</div>
 					<div class="mb-3">
 						<label for="provincia">Provincia</label>
-						<select class="form-select" id="provincia">
+						<select class="form-select" id="provincia" v-model="registro.provincia">
 							<!-- opciones de provincias -->
 						</select>
 					</div>
 					<div class="mb-3">
 						<label for="distrito">Distrito</label>
-						<input type="text" class="form-control" id="distrito" autocomplete="off">
+						<select class="form-select" id="distrito" v-model="registro.distrito" v-model="registro.distrito">
+							<!-- opciones de provincias -->
+						</select>
 					</div>
 					<div class="mb-3">
 						<label for="direccion">Dirección</label>
-						<input type="text" class="form-control" id="direccion" autocomplete="off">
+						<input type="text" class="form-control" id="direccion" autocomplete="off" v-model="registro.direccion">
 					</div>
 					<div class="mb-3">
 						<label for="correoElectronico">Correo Electrónico</label>
-						<input type="email" class="form-control" id="correoElectronico" autocomplete="off">
+						<input type="email" class="form-control" id="correoElectronico" autocomplete="off" v-model="registro.correo">
 					</div>
 				</div>
 			</div>
@@ -119,6 +125,10 @@
 		createApp({
 			setup() {
 				const servidor = 'https://intranet.citobiolab.com/api/'
+				const registro = ref({
+					paterno:'', materno:'', nombres:'', 
+					tipo:'', dni:'', clave:'', celular1:'', celular2:'', pais:'', departamento:-1, provincia:-1, distrito:-1, direccion:'', correo:''
+				})
 				
 				onMounted(()=>{
 					/*if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
@@ -126,7 +136,7 @@
 					}*/
 				})
 				return {
-					servidor
+					registro
 				}
 			}
 		}).mount('#app')
