@@ -41,26 +41,26 @@
 			<div class="row">
 				<div class="col-md-6">
 					<div class="mb-3">
-						<label for="apellidoPaterno">Apellido Paterno</label>
+						<label for="apellidoPaterno">Apellido Paterno <span class="text-danger">*</span></label>
 						<input type="text" class="form-control" id="apellidoPaterno" autocomplete="off" v-model="registro.paterno">
 					</div>
 					<div class="mb-3">
-						<label for="apellidoMaterno">Apellido Materno</label>
+						<label for="apellidoMaterno">Apellido Materno <span class="text-danger">*</span></label>
 						<input type="text" class="form-control" id="apellidoMaterno" autocomplete="off" v-model="registro.materno">
 					</div>
 					<div class="mb-3">
-						<label for="nombres">Nombres</label>
+						<label for="nombres">Nombres <span class="text-danger">*</span></label>
 						<input type="text" class="form-control" id="nombres" autocomplete="off" v-model="registro.nombres">
 					</div>
 					<div class="mb-3">
 						<label for="tipoDocumento">Tipo de Documento</label>
 						<select class="form-select" id="tipoDocumento" v-model="registro.tipo">
-							<option value="dni">DNI</option>
-							<option value="carnetExtranjeria">Carnet de Extranjería</option>
+							<option value="1">DNI</option>
+							<option value="0">Carnet de Extranjería</option>
 						</select>
 					</div>
 					<div class="mb-3">
-						<label for="dni">DNI</label>
+						<label for="dni">DNI <span class="text-danger">*</span></label>
 						<input type="text" class="form-control" id="dni" maxlength="15" autocomplete="off" v-model="registro.dni">
 					</div>
 					<div class="mb-3">
@@ -86,20 +86,23 @@
 					</div>
 					<div class="mb-3">
 						<label for="departamento">Departamento</label>
-						<select class="form-select" id="departamento" v-model="registro.departamento">
-							<!-- opciones de departamentos -->
+						<select class="form-select" id="departamento" v-model="registro.departamento" @change="cambioDepartamento">
+							<option value="-1">Seleccione un departamento</option>
+							<option v-for="departamento in departamentos" :value="departamento.id">{{departamento.name}}</option>
 						</select>
 					</div>
 					<div class="mb-3">
 						<label for="provincia">Provincia</label>
-						<select class="form-select" id="provincia" v-model="registro.provincia">
-							<!-- opciones de provincias -->
+						<select class="form-select" id="provincia" v-model="registro.provincia" @change="cambioProvincia">
+							<option value="-1">Seleccione una provincia</option>
+							<option v-for="provincia in provincias_select" :value="provincia.id">{{provincia.name}}</option>
 						</select>
 					</div>
 					<div class="mb-3">
 						<label for="distrito">Distrito</label>
 						<select class="form-select" id="distrito" v-model="registro.distrito" v-model="registro.distrito">
-							<!-- opciones de provincias -->
+							<option value="-1">Seleccione un distrito</option>
+							<option v-for="distrito in distritos_select" :value="distrito.id">{{distrito.name}}</option>
 						</select>
 					</div>
 					<div class="mb-3">
@@ -113,30 +116,72 @@
 				</div>
 			</div>
 			<div class="d-grid d-flex justify-content-center">
-				<button class="btn btn-outline-primary" ><i class="bi bi-floppy"></i> Crear usuario</button>
+				<button class="btn btn-outline-primary" @click="crear()"><i class="bi bi-floppy"></i> Crear usuario</button>
 			</div>
 		</section>
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 	<script>
 		const { createApp, ref, onMounted } = Vue
 	
 		createApp({
 			setup() {
-				const servidor = 'https://intranet.citobiolab.com/api/'
+				const servidor = 'http://localhost/documentos-cimal/api/'
 				const registro = ref({
 					paterno:'', materno:'', nombres:'', 
-					tipo:'', dni:'', clave:'', celular1:'', celular2:'', pais:'', departamento:-1, provincia:-1, distrito:-1, direccion:'', correo:''
+					tipo:1, dni:'', clave:'', celular1:'', celular2:'', pais:1, departamento:-1, provincia:-1, distrito:-1, direccion:'', correo:''
 				})
+				const departamentos = ref([])
+				const provincias = ref([])
+				const provincias_select = ref([])
+				const distritos = ref([])
+				const distritos_select = ref([])
 				
 				onMounted(()=>{
 					/*if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
 					}*/
+					pedirDatos();
 				})
+
+				function pedirDatos(){
+					axios.post(servidor + 'Ubigeo.php',{
+						pedir:'listar'
+					}).then(res=> {
+						departamentos.value = res.data.departamentos
+						provincias.value = res.data.provincias
+						distritos.value = res.data.distritos
+					})
+				}
+
+				function cambioDepartamento(){
+					registro.value.provincia = -1
+					registro.value.distrito = -1
+					provincias_select.value = provincias.value.filter(x=> x.department_id == registro.value.departamento )
+				}
+
+				function cambioProvincia(){
+					registro.value.distrito = -1
+					distritos_select.value = distritos.value.filter(x=> x.province_id == registro.value.provincia )
+				}
+
+				function crear(){
+					if(!registro.value.paterno || !registro.value.materno || !registro.value.nombres || !registro.value.dni || !registro.value.clave) alert('Los datos personales son obligatorios')
+					else
+						axios.post(servidor +'Usuario.php',{
+							pedir:'crear', registro: registro.value
+						})
+						.then(res=>{
+							if(res.data.id) window.location = 'usuarios.html'
+							else alert(`Hubo un problema creando el usuario`)
+						})
+				}
+
 				return {
-					registro
+					registro, crear, departamentos, provincias, distritos, provincias_select, distritos_select, cambioDepartamento, cambioProvincia
 				}
 			}
 		}).mount('#app')
