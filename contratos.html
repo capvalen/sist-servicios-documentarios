@@ -116,10 +116,12 @@
 						</div>
 						<div class="modal-body">
 							<p>Nombre del nuevo servicio</p>
-							<input type="text" class="form-control" autocomplete="off">
+							<input type="text" class="form-control" autocomplete="off" v-model="servicio.titulo">
+							<p>Código personalizado</p>
+							<input type="text" class="form-control" autocomplete="off" v-model="servicio.codigo">
 						</div>
 						<div class="modal-footer border-0">
-							<button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal"><i class="bi bi-database"></i> Crear servicio</button>
+							<button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="crearServicio()"><i class="bi bi-database"></i> Crear servicio</button>
 						</div>
 					</div>
 				</div>
@@ -134,14 +136,27 @@
 		createApp({
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servicio = ref({
+					codigo:'', titulo:''
+				})
 				
 				onMounted(()=>{
-					/*if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
+					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
-					}*/
+					}
 				})
+				
+				function crearServicio(){
+					axios.post(servidor + 'Servicio.php',{
+						pedir:'crear',
+						servicio : servicio.value,
+						idUsuario: localStorage.getItem('idUsuario')
+					}).then(res=> {
+						console.log(res.data)
+					})
+				}
 				return {
-					servidor
+					servidor, servicio, crearServicio
 				}
 			}
 		}).mount('#app')

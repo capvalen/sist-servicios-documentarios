@@ -55,26 +55,15 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>1</td>
-						<td>C1</td>
-						<td><a href="perfil.html" class="text-decoration-none">Pariona Valencia</a></td>
-						<td>Colaborador</td>
-						<td>4</td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>C5</td>
-						<td><a href="perfil.html" class="text-decoration-none">Rosana Galvez</a></td>
-						<td>Colaborador</td>
-						<td>3</td>
-					</tr>
-					<tr>
-						<td>3</td>
-						<td>C2</td>
-						<td><a href="perfil.html" class="text-decoration-none">Zuñiga Campos Daniel</a></td>
-						<td>Administrador</td>
-						<td>9</td>
+					<tr v-for="(usuario, index) in usuarios">
+						<td>{{index+1}}</td>
+						<td>{{usuario.idUsuario}}</td>
+						<td class="text-capitalize"><a href="perfil.html" class="text-decoration-none">{{usuario.paterno}} {{usuario.materno}} {{usuario.nombres}}</a></td>
+						<td>
+							<span v-if="usuario.nivel==1">Administrador</span>
+							<span v-else>Colaborador</span>
+						</td>
+						<td>{{usuario.cantDocs}}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -89,14 +78,24 @@
 		createApp({
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
+				const usuarios = ref([])
 
 				onMounted(() => {
-					/*if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
+					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
-					}*/
+						pedirDatos()
+					}
 				})
+
+				function pedirDatos(){
+					axios.post(servidor + 'Usuario.php',{
+						pedir:'listar'
+					}).then(res=> {
+						usuarios.value = res.data
+					})
+				}
 				return {
-					servidor
+					servidor, usuarios
 				}
 			}
 		}).mount('#app')
