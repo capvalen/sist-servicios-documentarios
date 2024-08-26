@@ -30,7 +30,7 @@
 								</div>
 								<div class="mb-3">
 									<label for="password" class="form-label">Contraseña</label>
-									<input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" autocapitalize="off" v-model="clave">
+									<input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" autocapitalize="off" v-model="clave" @keypress.enter="inicio()">
 								</div>
 								<div class="d-flex d-grid justify-content-center" @click="iniciar()"><button class="btn btn-outline-primary btn-lg"><i class="bi bi-door-open"></i> Ingresar</button></div>
 							</div>
@@ -69,6 +69,7 @@
 					if(response.mensaje == 'ok'){
 						localStorage.setItem('idUsuario', response.usuario.idUsuario)
 						localStorage.setItem('nombreUsuario', response.usuario.paterno +" " + response.usuario.materno + " " + response.usuario.nombres)
+						localStorage.setItem('nivel', response.usuario.nivel)
 						window.location='principal.html'
 					}else{
 						alert('Un dato esta mal, o esta dehabilitado')

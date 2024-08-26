@@ -70,7 +70,7 @@
 			</div>
 			<div class="d-flex justify-content-between my-3 d-grid gap-2">
 				<div>
-					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-database"></i> Crear nuevo servicio</button>
+					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false"><i class="bi bi-database"></i> Crear nuevo servicio</button>
 				</div>
 				<div class="d-flex d-grid gap-2">
 					<button class="btn btn-outline-secondary"><i class="bi bi-eraser"></i> Limpiar</button>
@@ -89,16 +89,22 @@
 						<th>Acciones</th>
 					</thead>
 					<tbody>
-						<tr>
-							<td>1</td>
-							<td><a href="detalle-contrato.html" class="text-decoration-none">CIT-555</a></td>
-							<td>Proyecto de diseño</td>
-							<td>Carlos Pariona</td>
-							<td>23/05/2024</td>
-							<td>El proceso</td>
+						<tr v-for="(tarea, index) in servicios">
+							<td>{{index+1}}</td>
+							<td class="text-uppercase"><a v-if="tarea.codigo" :href="'detalle-contrato.html?id='+tarea.id" class="text-decoration-none">{{tarea.codigo}}</a></td>
+							<td class="text-capitalize">{{tarea.titulo}}</td>
+							<td class="text-capitalize">{{tarea.nomUsuario}}</td>
+							<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
+							<td>
+								<span v-if="tarea.proceso == 1" >Asignado</span>
+								<span v-if="tarea.proceso == 2" >En proceso</span>
+								<span v-if="tarea.proceso == 3" >Observado</span>
+								<span v-if="tarea.proceso == 4" >Culminado</span>
+								<span v-if="tarea.proceso == 5" >Anulado</span>
+							</td>
 							<td class="d-flex d-grid gap-2">
-								<button class="btn btn-sm btn-light text-secondary"><i class="bi bi-pencil-square"></i></button>
-								<button class="btn btn-sm btn-light text-secondary"><i class="bi bi-trash3"></i></button>
+								<button class="btn btn-sm btn-light text-secondary" @click="prepararEditar(index)" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-pencil-square"></i></button>
+								<button class="btn btn-sm btn-light text-secondary" @click="borrar(index)"><i class="bi bi-trash3"></i></button>
 							</td>
 						</tr>
 					</tbody>
@@ -111,7 +117,10 @@
 				<div class="modal-dialog modal-sm modal-dialog-centered">
 					<div class="modal-content">
 						<div class="modal-header border-0">
-							<h5 class="modal-title" id="miModalLabel">Nuevo servicio</h5>
+							<h5 class="modal-title" id="miModalLabel">
+								<span v-if="!seEdita">Nuevo servicio</span>
+								<span v-else>Editar servicio</span>
+							</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body">
@@ -121,7 +130,8 @@
 							<input type="text" class="form-control" autocomplete="off" v-model="servicio.codigo">
 						</div>
 						<div class="modal-footer border-0">
-							<button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="crearServicio()"><i class="bi bi-database"></i> Crear servicio</button>
+							<button v-if="!seEdita" type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="crearServicio()"><i class="bi bi-database"></i> Crear servicio</button>
+							<button v-else type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @click="actualizarServicio()"><i class="bi bi-pencil-square"></i> Actualizar servicio</button>
 						</div>
 					</div>
 				</div>
@@ -130,33 +140,123 @@
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
+
 		const { createApp, ref, onMounted } = Vue
 	
-		createApp({
+		const app = createApp({
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
 				const servicio = ref({
-					codigo:'', titulo:''
+					codigo:'', titulo:'', id:-1
 				})
+				const servicios = ref([])
+				const seEdita = ref(false)
+				let indexGlobal=-1
 				
 				onMounted(()=>{
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
+						pedirDatos()
 					}
 				})
+
+				function pedirDatos(){
+					axios.post(servidor + 'Servicio.php',{
+						pedir:'listar'
+					}).then(res=> {
+						servicios.value = res.data
+					})
+				}
 				
 				function crearServicio(){
+					
 					axios.post(servidor + 'Servicio.php',{
 						pedir:'crear',
 						servicio : servicio.value,
 						idUsuario: localStorage.getItem('idUsuario')
 					}).then(res=> {
-						console.log(res.data)
+						pedirDatos()
+						if(res.data.id){
+							Swal.fire({
+								title: '¡Servicio creado!',
+								icon: 'success'
+							})
+						}else{
+							Swal.fire({
+								title: 'Hubo un error al insertar',
+								icon: 'error'
+							})
+						}
+
 					})
 				}
+
+				function prepararEditar(index){
+					seEdita.value=true
+					servicio.value = servicios.value[index]
+				}
+
+				function actualizarServicio(){
+					axios.post(servidor + 'Servicio.php',{
+						pedir: 'actualizarCabecera',
+						servicio : servicio.value
+					}).then(res=>{
+						if(res.data == 'ok'){
+							Swal.fire({
+								title: '¡Actualizado con éxito!',
+								icon: 'success'
+							})
+						}else{
+							Swal.fire({
+								title: 'Hubo un error al insertar',
+								icon: 'error'
+							})
+						}
+					})
+				}
+
+				async function borrar(index){
+					indexGlobal = index
+					const { value: text } = await Swal.fire({
+						//input: "text",
+						title: "Borrar servicio",
+						//inputLabel: "¿Desea borrar el servicio?",
+						confirmButtonText:'Sí, borrar',
+						cancelButtonText: 'Cancelar',
+						showCancelButton: true,
+						/*inputValidator: (value) => {
+							if (!value) return "Debe rellenar el campo de motivo";
+						}*/
+					});
+					if (text) { //se aprueba
+						axios.post(servidor + 'Servicio.php',{
+							pedir:'eliminar',
+							id : servicios.value[indexGlobal].id,
+						}).then(res =>{
+							if(res.data){
+								Swal.fire({
+									title: '¡Borrado con éxito!',
+									icon: 'success'
+								})
+							}else{
+								Swal.fire({
+									title: 'Hubo un error al insertar',
+									icon: 'error'
+								})
+							}
+							pedirDatos()
+						})
+					}
+				}
+
+				function fechaLatam(fecha){
+					if(fecha) return moment(fecha).format('DD/MM/YYYY')
+				}
+				
 				return {
-					servidor, servicio, crearServicio
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio
 				}
 			}
 		}).mount('#app')

@@ -15,6 +15,7 @@
 </head>
 <body>
 	<div class="row" id="app">
+		
 		<section class="col col-md-3 p-4 " id="menu">
 			<div class="mx-auto w-75 mb-3"><img src="img/logo.jpeg" class="img-fluid"></div>
 			<div class="list-group">
@@ -35,30 +36,48 @@
 				</a>
 			</div>
 		</section>
-		<section class="col col-md-9 container my-3 p-4 border-start " >
-			<h1 class="text-start">Registro: Cotización de servicios de agua luz - El Tambo (Etapa III)</h1>
+
+		<section v-if="sinAcceso" class="col col-md-9 container my-3 p-4 border-start ">
+			<p class="fs-3">Contenido restringido</p>
+			
+			<p>Ud. No tiene acceso, solicite a los administradores el acceso</p>
+			<a href="javascript:void(0);" class="text-decoration-none" onclick="history.back();"><i class="bi bi-arrow-left-short"></i> Volver</a>
+		</section>
+
+		<section v-if="!sinAcceso" class="col col-md-9 container my-3 p-4 border-start " >
+			<h1 class="text-start">Registro: <span class="text-capitalize">{{servicio.titulo}}</span></h1>
 			<div class="card mb-3">
 				<div class="card-body">
 					<h5 class="fw-bold">Datos iniciales</h5>
 					<div class="row row-cols-md-3">
-						<div class="col">
+						<div class="col my-2">
+							<label class="fw-bold">Código</label>
+							<p class="mb-0 text-uppercase">{{servicio.codigo}}</p>
+						</div>
+						<div class="col my-2">
 							<label class="fw-bold">Creador</label>
-							<p class="mb-0">Carlos Pariona</p>
+							<p class="mb-0 text-capitalize">{{servicio.nomUsuario}}</p>
 						</div>
-						<div class="col">
+						<div class="col my-2">
 							<label class="fw-bold">Registrado</label>
-							<p class="mb-0">Lunes, 24 de noviembre de 2004</p>
+							<p class="mb-0 text-capitalize">{{fechaLatamLargo(servicio.registro)}}</p>
 						</div>
-						<div class="col">
+						<div class="col my-2">
 							<label class="fw-bold">Estado actual</label>
-							<p class="mb-0">Iniciado</p>
+							<p class="mb-0">
+								<span v-if="servicio.proceso == 1" >Asignado</span>
+								<span v-if="servicio.proceso == 2" >En proceso</span>
+								<span v-if="servicio.proceso == 3" >Observado</span>
+								<span v-if="servicio.proceso == 4" >Culminado</span>
+								<span v-if="servicio.proceso == 5" >Anulado</span>
+							</p>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="d-flex d-grid justify-content-between my-4">
-				<button class="btn btn-outline-success " data-bs-toggle="modal" data-bs-target="#modalEditar"><i class="bi bi-pencil-square"></i> Editar valores inciales</button>
+			<div class="d-flex d-grid justify-content-between my-4" v-if="verificarAcceso()">
+				<button class="btn btn-outline-success d-none" data-bs-toggle="modal" data-bs-target="#modalEditar"><i class="bi bi-pencil-square"></i> Editar valores inciales</button>
 				<button class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#modalEtapa"><i class="bi bi-file-arrow-up"></i> Cambiar etapa</button>
 				<button class="btn btn-outline-warning " data-bs-toggle="modal" data-bs-target="#modalAsignar"><i class="bi bi-person-plus"></i> Asignación de usuarios</button>
 			</div>
@@ -86,16 +105,15 @@
 				<div class="col">
 					<p class="fw-bold">Usuarios con acceso</p>
 					<div class="list-group">
-						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+						<a href="#" v-for="(lector, index) in lectores" class="list-group-item list-group-item-action" aria-current="true">
 							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1">Caliluz Ramos</p>
-								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-ban"></i> Restringir</button>
+								<p class="mb-1 text-capitalize">{{lector.nomUsuario}}</p>
+								<button class="btn btn-sm btn-outline-danger" v-if="verificarAcceso()" @click="restringir(index)"><i class="bi bi-ban"></i> Restringir</button>
 							</div>
 						</a>
-						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+						<a v-if="lectores.length==0" href="#" class="list-group-item list-group-item-action" aria-current="true">
 							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1">Carlos Alex Pariona</p>
-								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-ban"></i> Restringir</button>
+								<p class="mb-1">No hay usuarios asignados</p>
 							</div>
 						</a>
 					</div>
@@ -122,7 +140,7 @@
 									<td>14/02/2014</td>
 									<td>Juan Pérez</td>
 									<td><a href="#!" class="text-decoration-none text-dark"><i class="bi bi-file-earmark-arrow-down-fill"></i></a></td>
-									<td class="d-flex d-grid gap-1">
+									<td class="d-flex d-grid gap-1" >
 										<button class="btn btn-sm btn-outline-danger border-0" title="Eliminar respuesta"><i class="bi bi-x-lg"></i></button>
 									</td>
 								</tr>
@@ -140,7 +158,7 @@
 						<div class="col-6">
 							<label for="">Tipo de ajunto</label>
 							<select class="form-select mb-3" id="sltTipoDocumento">
-								<option value="1">Principal</option>
+								<option value="1" v-if="verificarAcceso()">Principal</option>
 								<option value="2">Respuesta</option>
 							</select>
 						</div>
@@ -175,14 +193,13 @@
 						</div>
 						<div class="modal-body">
 							<p>Seleccione un usuario para que pueda visualizar los registros.</p>
-							<select class="form-select">
-								<option value="">Usuarios</option>
-								<option value="carlos">Carlos</option>
-								<option value="rosario">Rosario</option>
+							<select class="form-select text-capitalize" v-model="asignarIdUsuario">
+								<option value="-1" checked>Seleccione un usuario</option>
+								<option class="text-capitalize" v-for="usuario in usuarios" :value="usuario.idUsuario" >{{usuario.nombres}} {{usuario.paterno}} {{usuario.materno}}</option>
 							</select>
 						</div>
 						<div class="modal-footer border-0">
-							<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="bi bi-person-plus"></i> Asignar usuario</button>
+							<button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="addUser()"><i class="bi bi-person-plus"></i> Asignar usuario</button>
 						</div>
 					</div>
 				</div>
@@ -213,7 +230,7 @@
 						</div>
 						<div class="modal-body">
 							<p>Elija una nueva etapa</p>
-							<select class="form-select" id="sltEtapa">
+							<select class="form-select" id="sltEtapa" v-model="servicio.proceso">
 								<option value="1">Asignado</option>
 								<option value="2">En proceso</option>
 								<option value="3">Observado</option>
@@ -222,7 +239,7 @@
 							</select>
 						</div>
 						<div class="modal-footer border-0">
-							<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="bi bi-pencil-square"></i> Editar</button>
+							<button type="button" class="btn btn-outline-primary"   @click="cambiarEtapa()" data-bs-dismiss="modal"><i class="bi bi-caret-right"></i> Asignar etapa</button>
 						</div>
 					</div>
 				</div>
@@ -231,20 +248,157 @@
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
 		const { createApp, ref, onMounted } = Vue
 	
-		createApp({
+		const app = createApp({
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
+				let idServicio = ref(-1)
+				const sinAcceso = ref(true)
+				const usuarios = ref([])
+				const asignarIdUsuario = ref(-1)
+				const servicio = ref([])
+				const lectores = ref([])
+				const adjunto = ref({
+					tipo:2, asunto: '', fecha: moment().format('YYYY-MM-DD'), adjunto:''
+				})
 				
 				onMounted(()=>{
-					/*if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
+					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
-					}*/
+						const url = new URL(window.location.href);
+						idServicio = url.searchParams.get('id');
+
+						if(localStorage.getItem('nivel')==1){
+							sinAcceso.value = false
+							pedirDatos()
+							adjunto.value.tipo=1
+						}else{
+							adjunto.value.tipo=2
+							//pedir quien accede
+							axios.post(servidor + 'Servicio.php',{
+								pedir:'quienAccede',
+								idUsuario: localStorage.getItem('idUsuario'),
+								idServicio: idServicio
+							}).then(res=>{
+								console.log(res.data)
+								if(res.data=='noAccess'){
+									sinAcceso.value = true
+								}
+								else{
+									sinAcceso.value=false
+									servicio.value = res.data.servicio
+									lectores.value = res.data.usuarios
+								}
+							})
+						}
+					}
 				})
+
+				function pedirDatos(){
+					axios.post(servidor + 'Servicio.php',{
+						pedir:'listarDetalle',
+						id: idServicio
+					}).then(res=> {
+						servicio.value = res.data.servicio
+						lectores.value = res.data.usuarios
+					})
+
+					axios.post(servidor + 'Usuario.php',{
+						pedir:'listar'
+					}).then(res=> {
+						usuarios.value = res.data
+					})
+				}
+
+				function cambiarEtapa(){
+					axios.post(servidor + 'Servicio.php',{
+						pedir:'cambiarEtapa',
+						id: idServicio,
+						etapa: servicio.value.proceso,
+						idUsuario: localStorage.getItem('idUsuario')
+					}).then(res=> {
+						if(res.data == 'ok'){
+							Swal.fire({
+								title: '¡Actualizado con éxito!',
+								icon: 'success'
+							})
+						}else{
+							Swal.fire({
+								title: 'Hubo un error al insertar',
+								icon: 'error'
+							})
+						}
+					})
+				}
+
+				function addUser(){
+					axios.post(servidor + 'Servicio.php',{
+						pedir:'addUser',
+						idServicio: idServicio,
+						idUsuario: asignarIdUsuario.value,
+						quienAsigna: localStorage.getItem('idUsuario')
+					}).then(res=> {
+						if(res.data == 'ok'){
+							let nombre = usuarios.value.find(x=> x.idUsuario == asignarIdUsuario.value)
+							lectores.value.push({
+								idUsuario: asignarIdUsuario.value,
+								nomUsuario: `${nombre.paterno} ${nombre.materno} ${nombre.nombres}`
+							})
+							Swal.fire({
+								title: 'Usuario agregado con éxito!',
+								icon: 'success'
+							})
+						}else{
+							Swal.fire({
+								title: 'Hubo un error al insertar',
+								icon: 'error'
+							})
+						}
+					})
+				}
+
+				function restringir(index){
+					Swal.fire({
+						title: "¿Desea eliminar el usuario?",
+						icon: "warning",
+						showCancelButton: true,
+						confirmButtonText: "Sí, borrar"
+					}).then((result) => {
+						if (result.isConfirmed) {
+							axios.post(servidor+'Servicio.php',{
+								pedir:'borrarLector',
+								idServicio: idServicio,
+								idUsuario: lectores.value[index].idUsuario
+							}).then(res=>{
+								lectores.value.splice( index, 1)
+								Swal.fire({
+									title: "¡Retirado el acceso al usuario!",
+									icon: "success"
+								});
+							})
+						}
+					});
+				}
+				
+				function fechaLatam(fecha){
+					if(fecha) return moment(fecha).format('DD/MM/YYYY')
+				}
+				function fechaLatamLargo(fecha){
+					moment.locale('es')
+					if(fecha) return moment(fecha).format('dddd, DD [de] MMMM [de] YYYY')
+				}
+
+				function verificarAcceso(){
+					if(localStorage.getItem('nivel')=='1') return true
+					else return false
+				}
+
 				return {
-					servidor
+					servidor, servicio, fechaLatamLargo, fechaLatam, cambiarEtapa, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso
 				}
 			}
 		}).mount('#app')

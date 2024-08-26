@@ -52,6 +52,7 @@
 						<th>Apellidos y Nombres</th>
 						<th>Nivel</th>
 						<th>N° Documentos</th>
+						<th>@</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -64,6 +65,9 @@
 							<span v-else>Colaborador</span>
 						</td>
 						<td>{{usuario.cantDocs}}</td>
+						<th>
+							<a :href="'editar-usuario.html?id='+usuario.idUsuario" class="btn btn-sm btn-outline-primary" title="Editar usuario"><i class="bi bi-pencil-square"></i></a>
+						</th>
 					</tr>
 				</tbody>
 			</table>
