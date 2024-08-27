@@ -41,9 +41,16 @@
 				</a>
 			</div>
 		</section>
-		<section class="col col-md-9 container my-3 p-4 border-start ">
+		<section class="col col-md-9 container mb-3 p-4 pt-3 border-start ">
+			<div class="d-flex justify-content-between me-5">
+				<p class="mb-0 text-muted"><small><strong>Usuario actual:</strong> <span class="text-capitalize">{{nombreCompletoSesion()}}</span></small></p>
+				<p class="mb-0 text-muted"><small><strong>Nivel: </strong> 
+				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span></small></p>
+			</div>
+			<hr class="opacity-25">
+
 			<h1 class="text-start">Usuarios</h1>
-			<a href="registro-usuario.html" class="btn btn-outline-secondary"> <i class="bi bi-person-fill-add"></i> Agregar nuevo usuario</a>
+			<a href="registro-usuario.html" class="btn btn-outline-secondary" v-if="verificarAcceso()"> <i class="bi bi-person-fill-add"></i> Agregar nuevo usuario</a>
 			<table class="table table-hover my-3">
 				<thead>
 					<tr>
@@ -52,7 +59,7 @@
 						<th>Apellidos y Nombres</th>
 						<th>Nivel</th>
 						<th>N° Documentos</th>
-						<th>@</th>
+						<th v-if="verificarAcceso()">@</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -65,7 +72,7 @@
 							<span v-else>Colaborador</span>
 						</td>
 						<td>{{usuario.cantDocs}}</td>
-						<th>
+						<th v-if="verificarAcceso()">
 							<a :href="'editar-usuario.html?id='+usuario.idUsuario" class="btn btn-sm btn-outline-primary" title="Editar usuario"><i class="bi bi-pencil-square"></i></a>
 						</th>
 					</tr>
@@ -81,7 +88,7 @@
 
 		createApp({
 			setup() {
-				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servidor = 'https://grupocimalperu.com/intranet/api/'
 				const usuarios = ref([])
 
 				onMounted(() => {
@@ -98,8 +105,15 @@
 						usuarios.value = res.data
 					})
 				}
+
+				function verificarAcceso(){
+					if(localStorage.getItem('nivel')=='1') return true
+					else return false
+				}
+				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
+
 				return {
-					servidor, usuarios
+					servidor, usuarios, verificarAcceso, nombreCompletoSesion
 				}
 			}
 		}).mount('#app')

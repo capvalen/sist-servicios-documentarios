@@ -41,7 +41,14 @@
 				</a>
 			</div>
 		</section>
-		<section class="col col-md-9 container my-3 p-4 border-start ">
+		<section class="col col-md-9 container mb-3 p-4 pt-3 border-start ">
+			<div class="d-flex justify-content-between me-5">
+				<p class="mb-0 text-muted"><small><strong>Usuario actual:</strong> <span class="text-capitalize">{{nombreCompletoSesion()}}</span></small></p>
+				<p class="mb-0 text-muted"><small><strong>Nivel: </strong> 
+				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span></small></p>
+			</div>
+			<hr class="opacity-25">
+			
 			<h1 class="text-start">Perfil de usuario</h1>
 
 			<div class="card">
@@ -97,45 +104,35 @@
 
 			<h5 class="fw-bold my-3">Documentos asignados:</h5>
 
-			<table class="table table-striped">
+			<table class="table table-hover">
 				<thead>
-					<tr>
-						<th>N°</th>
-						<th>Codigo</th>
-						<th>Servicio</th>
-						<th>Acción</th>
-					</tr>
+					<th>N°</th>
+					<th>Código</th>
+					<th>Asunto</th>
+					<th>Colaborador</th>
+					<th>Fecha</th>
+					<th>Proceso</th>
 				</thead>
 				<tbody>
-					<tr>
-						<td>1</td>
-						<td>DOC-0950</td>
-						<td><a class="text-decoration-none" href="detalle-contrato.html">Contrato de Servicios</a></td>
-						<td>
-							<button class="btn btn-outline-danger btn-sm border-0" title="Bloquear acceso" type="button">
-								<i class="bi bi-ban"></i>
-							</button>
+					<tr v-for="(tarea, index) in servicios">
+						<td>{{index+1}}</td>
+						<td class="text-uppercase">{{tarea.codigo}}</td>
+						<td class="text-capitalize">
+							<a v-if="tarea.codigo" :href="'detalle-contrato.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
 						</td>
+						<td class="text-capitalize">{{tarea.nomUsuario}}</td>
+						<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
+						<td>
+							<span v-if="tarea.proceso == 1" >Asignado</span>
+							<span v-if="tarea.proceso == 2" >En proceso</span>
+							<span v-if="tarea.proceso == 3" >Observado</span>
+							<span v-if="tarea.proceso == 4" >Culminado</span>
+							<span v-if="tarea.proceso == 5" >Anulado</span>
+						</td>
+						
 					</tr>
-					<tr>
-						<td>2</td>
-						<td>DOC-0951</td>
-						<td><a class="text-decoration-none" href="detalle-contrato.html">Acta de constitución</a></td>
-						<td>
-							<button class="btn btn-outline-danger btn-sm border-0" title="Bloquear acceso" type="button">
-								<i class="bi bi-ban"></i>
-							</button>
-						</td>
-					</tr>
-					<tr>
-						<td>3</td>
-						<td>DOC-0952</td>
-						<td><a class="text-decoration-none" href="detalle-contrato.html">Contrato de compraventa</a></td>
-						<td>
-							<button class="btn btn-outline-danger btn-sm border-0" title="Bloquear acceso" type="button">
-								<i class="bi bi-ban"></i>
-							</button>
-						</td>
+					<tr v-if="servicios.length==0">
+						<td colspan="7">No se encontraron datos registrados</td>
 					</tr>
 				</tbody>
 			</table>
@@ -149,15 +146,32 @@
 
 		createApp({
 			setup() {
-				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servidor = 'https://grupocimalperu.com/intranet/api/'
+				const servicios = ref([])
 
 				onMounted(() => {
-					/*if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
+					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
-					}*/
+						axios.post(servidor + 'Servicio.php',{
+							pedir:'listarMisServicios',
+							idUsuario: localStorage.getItem('idUsuario')
+						}).then(res=> {
+							servicios.value = res.data
+						})
+					}
 				})
+
+				function fechaLatam(fecha){
+					if(fecha) return moment(fecha).format('DD/MM/YYYY')
+				}
+				function verificarAcceso(){
+					if(localStorage.getItem('nivel')=='1') return true
+					else return false
+				}
+				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
+
 				return {
-					servidor
+					servidor, servicios, fechaLatam, verificarAcceso, nombreCompletoSesion
 				}
 			}
 		}).mount('#app')

@@ -44,7 +44,13 @@
 			<a href="javascript:void(0);" class="text-decoration-none" onclick="history.back();"><i class="bi bi-arrow-left-short"></i> Volver</a>
 		</section>
 
-		<section v-if="!sinAcceso" class="col col-md-9 container my-3 p-4 border-start " >
+		<section v-if="!sinAcceso" class="col col-md-9 container mb-3 p-4 pt-3 border-start " >
+			<div class="d-flex justify-content-between me-5">
+				<p class="mb-0 text-muted"><small><strong>Usuario actual:</strong> <span class="text-capitalize">{{nombreCompletoSesion()}}</span></small></p>
+				<p class="mb-0 text-muted"><small><strong>Nivel: </strong> 
+				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span></small></p>
+			</div>
+			<hr class="opacity-25">
 			<h1 class="text-start">Registro: <span class="text-capitalize">{{servicio.titulo}}</span></h1>
 			<div class="card mb-3">
 				<div class="card-body">
@@ -89,7 +95,7 @@
 						<a v-for="(documento, index) in documentos" :href="'subidas/'+documento.ruta" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
 							<div class="d-flex w-100 justify-content-between">
 								<p class="mb-1 text-capitalize">{{documento.asunto}}</p>
-								<button class="btn btn-sm btn-outline-danger" @click="retirarDocumento(index, documento.id, documento.ruta, $event)"><i class="bi bi-x-lg"></i> Remover</button>
+								<button v-if="verificarAcceso()" class="btn btn-sm btn-outline-danger" @click="retirarDocumento(index, documento.id, documento.ruta, $event)"><i class="bi bi-x-lg"></i> Remover</button>
 							</div>
 							<small class="text-capitalize">Agregado: {{fechaLatamLargo(documento.fecha)}}</small>
 						</a>
@@ -129,7 +135,7 @@
 								<th>Fecha de envío</th>
 								<th>Colborador</th>
 								<th>Documento</th>
-								<th>Acciones</th>
+								<th v-if="verificarAcceso()">Acciones</th>
 							</thead>
 							<tbody>
 								<tr v-for="(respuesta, index) in respuestas">
@@ -138,7 +144,7 @@
 									<td>{{fechaLatam(respuesta.fecha)}}</td>
 									<td class="text-capitalize">{{respuesta.nomUsuario}}</td>
 									<td><a :href="'subidas/'+respuesta.ruta" target="_blank" class="text-decoration-none "><i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar</a></td>
-									<td class="d-flex d-grid gap-1" >
+									<td class="d-flex d-grid gap-1" v-if="verificarAcceso()">
 										<button class="btn btn-sm btn-outline-danger border-0" title="Eliminar respuesta" @click="borrarRespuesta(index)"><i class="bi bi-x-lg"></i></button>
 									</td>
 								</tr>
@@ -157,22 +163,22 @@
 					<p class="my-2">Rellene todos los campos:</p>
 					<div class="row ">
 						<div class="col-6">
-							<label for="">Tipo de ajunto</label>
+							<label for="">Tipo de ajunto <span class="text-danger">*</span></label>
 							<select class="form-select mb-3" id="sltTipoDocumento" v-model="adjunto.tipo">
 								<option value="1" v-if="verificarAcceso()">Principal</option>
 								<option value="2">Respuesta</option>
 							</select>
 						</div>
 						<div class="col-6">
-							<label for="">Asunto</label>
+							<label for="">Asunto <span class="text-danger">*</span></label>
 							<input type="text" class="form-control mb-3" v-model="adjunto.asunto">
 						</div>
 						<div class="col-6">
-							<label for="">Fecha</label>
+							<label for="">Fecha <span class="text-danger">*</span></label>
 							<input type="date" class="form-control mb-3" v-model="adjunto.fecha">
 						</div>
 						<div class="col-6 my-2">
-							<label for="">Archivo adjunto</label>
+							<label for="">Archivo adjunto <span class="text-danger">*</span></label>
 							<input type="file" class="form-control" placeholder="Adjunte su archivo" id="txtArchivo" v-model="adjunto.adjunto">
 						</div>
 						<div class="col-6 offset-4 my-2">
@@ -256,7 +262,7 @@
 	
 		const app = createApp({
 			setup() {
-				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servidor = 'https://grupocimalperu.com/intranet/api/'
 				let idServicio = ref(-1)
 				const sinAcceso = ref(true)
 				const usuarios = ref([])
@@ -509,9 +515,10 @@
 					if(localStorage.getItem('nivel')=='1') return true
 					else return false
 				}
+				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 
 				return {
-					servidor, servicio, fechaLatamLargo, fechaLatam, cambiarEtapa, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso, adjunto, enviarDocumento, documentos, retirarDocumento, respuestas, borrarRespuesta
+					servidor, servicio, fechaLatamLargo, fechaLatam, cambiarEtapa, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso, adjunto, enviarDocumento, documentos, retirarDocumento, respuestas, borrarRespuesta, nombreCompletoSesion
 				}
 			}
 		}).mount('#app')

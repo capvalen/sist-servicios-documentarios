@@ -37,7 +37,7 @@ function crear($db){
 function listar($db){
 	$filas = [];
 	$sql=$db->prepare("SELECT count(s.id) as cantDocs, u.* FROM `usuarios` u
-	left join servicios s on s.idUsuario = u.idUsuario WHERE u.activo = 1
+	left join servicios_empleados s on s.idUsuario = u.idUsuario WHERE u.activo = 1
 	group by u.idUsuario order by u.paterno;");
 	$sql->execute();
 	while($row = $sql->fetch(PDO::FETCH_ASSOC))

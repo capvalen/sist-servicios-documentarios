@@ -35,7 +35,14 @@
 				</a>
 			</div>
 		</section>
-		<section class="col col-md-9 container my-3 p-4 border-start " >
+		<section class="col col-md-9 container mb-3 p-4 pt-3 border-start ">
+			<div class="d-flex justify-content-between me-5">
+				<p class="mb-0 text-muted"><small><strong>Usuario actual:</strong> <span class="text-capitalize">{{nombreCompletoSesion()}}</span></small></p>
+				<p class="mb-0 text-muted"><small><strong>Nivel: </strong> 
+				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span></small></p>
+			</div>
+			<hr class="opacity-25">
+
 			<h1 class="text-start">Sección Servicios</h1>
 			<div class="card">
 				<div class="card-body">
@@ -70,7 +77,7 @@
 			</div>
 			<div class="d-flex justify-content-between my-3 d-grid gap-2">
 				<div>
-					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false"><i class="bi bi-database"></i> Crear nuevo servicio</button>
+					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false" v-if="verificarAcceso()"><i class="bi bi-database"></i> Crear nuevo servicio</button>
 				</div>
 				<div class="d-flex d-grid gap-2">
 					<button class="btn btn-outline-secondary" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar filtro</button>
@@ -87,7 +94,7 @@
 						<th>Colaborador</th>
 						<th>Fecha</th>
 						<th>Proceso</th>
-						<th>Acciones</th>
+						<th v-if="verificarAcceso()">Acciones</th>
 					</thead>
 					<tbody>
 						<tr v-for="(tarea, index) in servicios">
@@ -105,7 +112,7 @@
 								<span v-if="tarea.proceso == 4" >Culminado</span>
 								<span v-if="tarea.proceso == 5" >Anulado</span>
 							</td>
-							<td class="d-flex d-grid gap-2">
+							<td class="d-flex d-grid gap-2" v-if="verificarAcceso()">
 								<button class="btn btn-sm btn-light text-secondary" @click="prepararEditar(index)" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-pencil-square"></i></button>
 								<button class="btn btn-sm btn-light text-secondary" @click="borrar(index)"><i class="bi bi-trash3"></i></button>
 							</td>
@@ -114,8 +121,8 @@
 							<td colspan="7">No se encontraron datos registrados</td>
 						</tr>
 					</tbody>
-				</div>
-			</table>
+				</table>
+			</div>
 		</section>
 
 		<section>
@@ -153,7 +160,7 @@
 	
 		const app = createApp({
 			setup() {
-				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servidor = 'https://grupocimalperu.com/intranet/api/'
 				const servicio = ref({
 					codigo:'', titulo:'', id:-1
 				})
@@ -268,6 +275,11 @@
 					}
 				}
 
+				function verificarAcceso(){
+					if(localStorage.getItem('nivel')=='1') return true
+					else return false
+				}
+
 				function filtrar(){
 					axios.post(servidor + 'Servicio.php',{
 						pedir: 'filtrar',
@@ -279,9 +291,10 @@
 				function fechaLatam(fecha){
 					if(fecha) return moment(fecha).format('DD/MM/YYYY')
 				}
+				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 				
 				return {
-					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion
 				}
 			}
 		}).mount('#app')

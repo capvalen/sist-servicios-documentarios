@@ -30,7 +30,7 @@
 								</div>
 								<div class="mb-3">
 									<label for="password" class="form-label">Contraseña</label>
-									<input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" autocapitalize="off" v-model="clave" @keypress.enter="inicio()">
+									<input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña" autocapitalize="off" v-model="clave" @keypress.enter="iniciar()">
 								</div>
 								<div class="d-flex d-grid justify-content-center" @click="iniciar()"><button class="btn btn-outline-primary btn-lg"><i class="bi bi-door-open"></i> Ingresar</button></div>
 							</div>
@@ -48,7 +48,7 @@
 	
 		createApp({
 			setup() {
-				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servidor = 'https://grupocimalperu.com/intranet/api/'
 				const usuario = ref('')
 				const clave = ref('')
 				
