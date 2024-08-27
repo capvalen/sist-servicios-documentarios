@@ -86,19 +86,17 @@
 				<div class="col">
 					<p class="fw-bold">Documentos iniciales</p>
 					<div class="list-group">
-						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+						<a v-for="(documento, index) in documentos" :href="'subidas/'+documento.ruta" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
 							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1">Contrato vacío de legalización</p>
-								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Remover</button>
+								<p class="mb-1 text-capitalize">{{documento.asunto}}</p>
+								<button class="btn btn-sm btn-outline-danger" @click="retirarDocumento(index, documento.id, documento.ruta, $event)"><i class="bi bi-x-lg"></i> Remover</button>
 							</div>
-							<small>Agregado: 14 de noviembre de 2024</small>
+							<small class="text-capitalize">Agregado: {{fechaLatamLargo(documento.fecha)}}</small>
 						</a>
-						<a href="#" class="list-group-item list-group-item-action" aria-current="true">
+						<a v-if="documentos.length==0" href="#!" class="list-group-item list-group-item-action" aria-current="true">
 							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1">Revisión final de contrato</p>
-								<button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> Remover</button>
+								<p class="mb-1">No hay documentos principales</p>
 							</div>
-							<small>Agregado: 14 de noviembre de 2024</small>
 						</a>
 					</div>
 				</div>
@@ -134,15 +132,18 @@
 								<th>Acciones</th>
 							</thead>
 							<tbody>
-								<tr>
-									<td>C-001</td>
-									<td>Aprobación de términos</td>
-									<td>14/02/2014</td>
-									<td>Juan Pérez</td>
-									<td><a href="#!" class="text-decoration-none text-dark"><i class="bi bi-file-earmark-arrow-down-fill"></i></a></td>
+								<tr v-for="(respuesta, index) in respuestas">
+									<td>{{index+1}}</td>
+									<td class="text-capitalize">{{respuesta.asunto}}</td>
+									<td>{{fechaLatam(respuesta.fecha)}}</td>
+									<td class="text-capitalize">{{respuesta.nomUsuario}}</td>
+									<td><a :href="'subidas/'+respuesta.ruta" target="_blank" class="text-decoration-none "><i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar</a></td>
 									<td class="d-flex d-grid gap-1" >
-										<button class="btn btn-sm btn-outline-danger border-0" title="Eliminar respuesta"><i class="bi bi-x-lg"></i></button>
+										<button class="btn btn-sm btn-outline-danger border-0" title="Eliminar respuesta" @click="borrarRespuesta(index)"><i class="bi bi-x-lg"></i></button>
 									</td>
+								</tr>
+								<tr v-if="respuestas.length==0">
+									<td colspan="6">Aún no se registraron respuestas de los colaboradores</td>
 								</tr>
 							</tbody>
 						</table>
@@ -157,25 +158,25 @@
 					<div class="row ">
 						<div class="col-6">
 							<label for="">Tipo de ajunto</label>
-							<select class="form-select mb-3" id="sltTipoDocumento">
+							<select class="form-select mb-3" id="sltTipoDocumento" v-model="adjunto.tipo">
 								<option value="1" v-if="verificarAcceso()">Principal</option>
 								<option value="2">Respuesta</option>
 							</select>
 						</div>
 						<div class="col-6">
 							<label for="">Asunto</label>
-							<input type="text" class="form-control mb-3 ">
+							<input type="text" class="form-control mb-3" v-model="adjunto.asunto">
 						</div>
 						<div class="col-6">
 							<label for="">Fecha</label>
-							<input type="date" class="form-control">
+							<input type="date" class="form-control mb-3" v-model="adjunto.fecha">
 						</div>
-						<div class="col my-2">
+						<div class="col-6 my-2">
 							<label for="">Archivo adjunto</label>
-							<div class="input-group mb-3">
-								<input type="text" class="form-control" placeholder="Adjunte su archivo" >
-								<button class="btn btn-dark" type="button" id="button-addon2"><i class="bi bi-cloud-upload-fill"></i> Enviar adjunto</button>
-							</div>
+							<input type="file" class="form-control" placeholder="Adjunte su archivo" id="txtArchivo" v-model="adjunto.adjunto">
+						</div>
+						<div class="col-6 offset-4 my-2">
+							<button class="btn btn-dark" type="button" id="btnEnviar" @click="enviarDocumento()"><i class="bi bi-cloud-upload-fill"></i> Enviar adjunto</button>
 						</div>
 					</div>
 				</div>
@@ -262,6 +263,8 @@
 				const asignarIdUsuario = ref(-1)
 				const servicio = ref([])
 				const lectores = ref([])
+				const documentos = ref([])
+				const respuestas = ref([])
 				const adjunto = ref({
 					tipo:2, asunto: '', fecha: moment().format('YYYY-MM-DD'), adjunto:''
 				})
@@ -275,9 +278,9 @@
 						if(localStorage.getItem('nivel')==1){
 							sinAcceso.value = false
 							pedirDatos()
-							adjunto.value.tipo=1
+							adjunto.value.tipo = 1
 						}else{
-							adjunto.value.tipo=2
+							adjunto.value.tipo = 2
 							//pedir quien accede
 							axios.post(servidor + 'Servicio.php',{
 								pedir:'quienAccede',
@@ -292,6 +295,8 @@
 									sinAcceso.value=false
 									servicio.value = res.data.servicio
 									lectores.value = res.data.usuarios
+									documentos.value = res.data.documentos
+									respuestas.value = res.data.respuestas
 								}
 							})
 						}
@@ -305,6 +310,8 @@
 					}).then(res=> {
 						servicio.value = res.data.servicio
 						lectores.value = res.data.usuarios
+						documentos.value = res.data.documentos
+						respuestas.value = res.data.respuestas
 					})
 
 					axios.post(servidor + 'Usuario.php',{
@@ -383,6 +390,112 @@
 						}
 					});
 				}
+
+				function enviarDocumento(){
+					const inputFile = document.querySelector('#txtArchivo')
+					
+					const formData = new FormData();
+    		  formData.append('pdf', inputFile.files[0]);
+    		  formData.append('idServicio', idServicio);
+    		  formData.append('idUsuario', localStorage.getItem('idUsuario'));
+    		  formData.append('tipo', adjunto.value.tipo);
+    		  formData.append('asunto', adjunto.value.asunto);
+    		  formData.append('fecha', adjunto.value.fecha);
+
+					axios.post(servidor + 'subidaArchivo.php', formData, {
+						headers: {
+							'Content-Type': 'multipart/form-data'
+						}
+					}).then(res=>{
+						if(res.data.estado=='ok'){
+							if(adjunto.value.tipo==1)
+								documentos.value.push({
+									id: res.data.id,
+									ruta: res.data.subida,
+									tipo: adjunto.value.tipo,
+									asunto: adjunto.value.asunto,
+									nomUsuario: localStorage.getItem('nombreUsuario'),
+									registro: adjunto.value.fecha
+								})
+							if(adjunto.value.tipo==2)
+								respuestas.value.push({
+									id: res.data.id,
+									ruta: res.data.subida,
+									tipo: adjunto.value.tipo,
+									asunto: adjunto.value.asunto,
+									nomUsuario: localStorage.getItem('nombreUsuario'),
+									registro: adjunto.value.fecha
+								})
+							
+							Swal.fire({
+								icon: 'success',
+								title: 'Archivo adjuntado'
+							})
+							inputFile.value=""
+							adjunto.value.asunto=''
+						}else{
+							Swal.fire({
+								icon: 'warning',
+								title: 'No se logró adjuntar su archivo'
+							})
+						}
+					})
+				}
+
+				function retirarDocumento(index, id, ruta, event){
+					event.stopPropagation()
+					event.preventDefault()
+					Swal.fire({
+						title: "¿Desea eliminar el documento adjunto?",
+						icon: "warning",
+						showCancelButton: true,
+						confirmButtonColor: "#d33",
+						confirmButtonText: "Si, eliminar"
+					}).then((result) => {
+						if (result.isConfirmed) {
+							axios.post(servidor + 'eliminarArchivo.php',{
+								pedir: 'eliminarAdjunto',
+								idAdjunto: id,
+								ruta
+							}).then(res=>{
+								if(res.data.estado == 'eliminado'){
+									documentos.value.splice(index, 1)
+									Swal.fire({
+										title: "Archivo borrado",
+										icon: "success"
+									});
+								}
+							})
+							
+						}
+					});
+				}
+
+				function borrarRespuesta(index){
+					Swal.fire({
+						title: "¿Desea eliminar la respuesta?",
+						icon: "warning",
+						showCancelButton: true,
+						confirmButtonColor: "#d33",
+						confirmButtonText: "Si, eliminar"
+					}).then((result) => {
+						if (result.isConfirmed) {
+							axios.post(servidor + 'Servicio.php',{
+								pedir: 'eliminarRespuesta',
+								idRespuesta: respuestas.value[index].id
+							}).then(res=>{
+								if(res.data == 'ok'){
+									respuestas.value.splice(index, 1)
+									Swal.fire({
+										title: "Archivo borrado",
+										icon: "success"
+									});
+								}
+							})
+							
+						}
+					});
+				}
 				
 				function fechaLatam(fecha){
 					if(fecha) return moment(fecha).format('DD/MM/YYYY')
@@ -398,7 +511,7 @@
 				}
 
 				return {
-					servidor, servicio, fechaLatamLargo, fechaLatam, cambiarEtapa, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso
+					servidor, servicio, fechaLatamLargo, fechaLatam, cambiarEtapa, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso, adjunto, enviarDocumento, documentos, retirarDocumento, respuestas, borrarRespuesta
 				}
 			}
 		}).mount('#app')

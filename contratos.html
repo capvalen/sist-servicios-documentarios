@@ -42,7 +42,7 @@
 					<div class="row">
 						<div class="col">
 							<label for=""><i class="bi bi-funnel"></i> Estado</label>
-							<select class="form-select" id="sltEstado">
+							<select class="form-select" id="sltEstado" v-model="filtro.estado">
 								<option value="-1">Todos</option>
 								<option value="1">Asignado</option>
 								<option value="2">En proceso</option>
@@ -59,11 +59,11 @@
 						</div>
 						<div class="col">
 							<label for=""><i class="bi bi-funnel"></i> Fecha</label>
-							<input type="date" class="form-control">
+							<input type="date" class="form-control" v-model="filtro.fecha">
 						</div>
 						<div class="col">
 							<label for=""><i class="bi bi-funnel"></i> Código</label>
-							<input type="text" class="form-control" placeholder="Código..." autocomplete="off">
+							<input type="text" class="form-control" placeholder="Código..." autocomplete="off" v-model="filtro.codigo">
 						</div>
 					</div>
 				</div>
@@ -73,10 +73,11 @@
 					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false"><i class="bi bi-database"></i> Crear nuevo servicio</button>
 				</div>
 				<div class="d-flex d-grid gap-2">
-					<button class="btn btn-outline-secondary"><i class="bi bi-eraser"></i> Limpiar</button>
-					<button class="btn btn-outline-secondary"><i class="bi bi-funnel"></i> Aplicar filtro</button>
+					<button class="btn btn-outline-secondary" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar filtro</button>
+					<button class="btn btn-outline-secondary" @click="filtrar()"><i class="bi bi-funnel"></i> Aplicar filtro</button>
 				</div>
 			</div>
+			<p>A continuación se muestran todas las asignaciones a su cuenta</p>
 			<div class="table-responsive">
 				<table class="table table-hover">
 					<thead>
@@ -91,8 +92,10 @@
 					<tbody>
 						<tr v-for="(tarea, index) in servicios">
 							<td>{{index+1}}</td>
-							<td class="text-uppercase"><a v-if="tarea.codigo" :href="'detalle-contrato.html?id='+tarea.id" class="text-decoration-none">{{tarea.codigo}}</a></td>
-							<td class="text-capitalize">{{tarea.titulo}}</td>
+							<td class="text-uppercase">{{tarea.codigo}}</td>
+							<td class="text-capitalize">
+								<a v-if="tarea.codigo" :href="'detalle-contrato.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
+							</td>
 							<td class="text-capitalize">{{tarea.nomUsuario}}</td>
 							<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
 							<td>
@@ -106,6 +109,9 @@
 								<button class="btn btn-sm btn-light text-secondary" @click="prepararEditar(index)" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-pencil-square"></i></button>
 								<button class="btn btn-sm btn-light text-secondary" @click="borrar(index)"><i class="bi bi-trash3"></i></button>
 							</td>
+						</tr>
+						<tr v-if="servicios.length==0">
+							<td colspan="7">No se encontraron datos registrados</td>
 						</tr>
 					</tbody>
 				</div>
@@ -152,6 +158,9 @@
 					codigo:'', titulo:'', id:-1
 				})
 				const servicios = ref([])
+				const filtro = ref({
+					estado:-1, fecha:null, colaborador:-1, codigo:''
+				})
 				const seEdita = ref(false)
 				let indexGlobal=-1
 				
@@ -164,7 +173,8 @@
 
 				function pedirDatos(){
 					axios.post(servidor + 'Servicio.php',{
-						pedir:'listar'
+						pedir:'listarMisServicios',
+						idUsuario: localStorage.getItem('idUsuario')
 					}).then(res=> {
 						servicios.value = res.data
 					})
@@ -191,6 +201,13 @@
 						}
 
 					})
+				}
+
+				function limpiar(){
+					filtro.value = {
+						estado:-1, fecha:null, colaborador:-1, codigo:''
+					}
+					filtrar()
 				}
 
 				function prepararEditar(index){
@@ -251,12 +268,20 @@
 					}
 				}
 
+				function filtrar(){
+					axios.post(servidor + 'Servicio.php',{
+						pedir: 'filtrar',
+						idUsuario: localStorage.getItem('idUsuario'),
+						filtro: filtro.value
+					}).then(res=> servicios.value = res.data )
+				}
+
 				function fechaLatam(fecha){
 					if(fecha) return moment(fecha).format('DD/MM/YYYY')
 				}
 				
 				return {
-					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar
 				}
 			}
 		}).mount('#app')
