@@ -22,7 +22,7 @@ switch ($_POST['pedir']) {
 
 function crear($db){
 	$s = $_POST['servicio'];
-	$sql= $db->prepare("INSERT INTO `servicios`(
+	$sql= $db->prepare("INSERT INTO `pagos`(
 		`idUsuario`, `codigo`, `titulo`
 		) VALUES (
 		?, ?, ?
@@ -31,9 +31,9 @@ function crear($db){
 			$_POST['idUsuario'], $s['codigo'], $s['titulo']
 		]) ){
 			$id =  $db->lastInsertId();
-			$sqlMov = $db->prepare("INSERT INTO movimientos (idUsuario,idServicio,idMovimiento,fecha) values(
+			/* $sqlMov = $db->prepare("INSERT INTO movimientos (idUsuario,idServicio,idMovimiento,fecha) values(
 			?,?, 1, now() );");
-			$sqlMov->execute([ $_POST['idUsuario'], $id ]);
+			$sqlMov->execute([ $_POST['idUsuario'], $id ]); */
 		}
 		else $id = -1;
 	
@@ -55,23 +55,19 @@ function listar($db){
 function listarMisServicios($db){
 	$filas = [];
 	//Analizar el ID que pide datos
-	$sqlUsuario = $db->prepare("SELECT u.*, d.name as nomDepartamento, p.name as nomProvincia, di.name as nomDistrito from usuarios u
-	left join ubigeo_peru_departments d on d.id = u.departamento
-	left join ubigeo_peru_provinces p on p.id = u.provincia
-	left join ubigeo_peru_districts di on di.id = u.distrito
-	where idUsuario = ?; ");
+	$sqlUsuario = $db->prepare("SELECT nivel from usuarios where idUsuario = ?; ");
 	$sqlUsuario->execute([ $_POST['idUsuario'] ]);
 	$rowUsuario = $sqlUsuario->fetch(PDO::FETCH_ASSOC);
 
 	if($rowUsuario['nivel'] == 0 ){//Listar solo los servicios asignados al usuario
-		$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `servicios` s
-		inner join servicios_empleados se on se.idServicio = s.id
+		$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `pagos` s
+		inner join pagos_empleados se on se.idPago = s.id
 		inner join usuarios u on u.idUsuario = s.idUsuario
 		where se.activo = 1 and se.idUsuario = ? order by s.id desc;");
 		$sql->execute([ $_POST['idUsuario'] ]);
 	}
 	if($rowUsuario['nivel'] == 1 ){// admin puede ver todo
-		$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `servicios` s
+		$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `pagos` s
 		inner join usuarios u on u.idUsuario = s.idUsuario
 		where s.activo = 1 order by s.id desc limit 100;");
 		$sql->execute();
@@ -80,10 +76,7 @@ function listarMisServicios($db){
 	while($row = $sql->fetch(PDO::FETCH_ASSOC))
 		$filas [] = $row;
 	
-	echo json_encode(array(
-		'usuario' => $rowUsuario,
-		'servicios' => $filas
-	));
+	echo json_encode($filas);
 }
 
 function filtrar($db){
@@ -124,30 +117,30 @@ function filtrar($db){
 function listarDetalle($db){
 	$filas = [];
 	$usuarios = []; $documentos = []; $respuestas = [];
-	$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `servicios` s
+	$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `pagos` s
 	inner join usuarios u on u.idUsuario = s.idUsuario
 	where s.activo = 1 and s.id = ?;");
 	$sql->execute([ $_POST['id'] ]);
 	$row = $sql->fetch(PDO::FETCH_ASSOC);
 		$filas = $row;
 
-	$sqlUsuarios = $db->prepare("SELECT se.`id`, `idServicio`, se.`idUsuario`, se.`fecha`, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `servicios_empleados` se
+	$sqlUsuarios = $db->prepare("SELECT se.`id`, `idPago`, se.`idUsuario`, se.`fecha`, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `pagos_empleados` se
 	inner join usuarios u on u.idUsuario = se.idUsuario
-	WHERE `idServicio` = ? and se.activo = 1 order by u.paterno;");
+	WHERE `idPago` = ? and se.activo = 1 order by u.paterno;");
 	$sqlUsuarios -> execute([ $_POST['id'] ]);
 	while($rowUsuarios = $sqlUsuarios->fetch(PDO::FETCH_ASSOC))
 		$usuarios [] = $rowUsuarios;
 
 	$sqlDocumentos = $db->prepare("SELECT d.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `documentos` d
 	inner join usuarios u on u.idUsuario = d.idUsuario
-	where idServicio = ? and d.tipo=1 and d.activo=1 and d.grupo=1;");
+	where idServicio = ? and d.tipo=1 and d.activo=1  and d.grupo=2;");
 	$sqlDocumentos->execute([ $_POST['id'] ]);
 	while($rowDocumentos = $sqlDocumentos->fetch(PDO::FETCH_ASSOC))
 		$documentos [] = $rowDocumentos;
 
 	$sqlRespuestas = $db->prepare("SELECT d.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `documentos` d
 	inner join usuarios u on u.idUsuario = d.idUsuario
-	where idServicio = ? and d.tipo=2 and d.activo=1 and d.grupo=1 order by d.id asc;");
+	where idServicio = ? and d.tipo=2 and d.activo=1 and d.grupo=2 order by d.id asc;");
 	$sqlRespuestas->execute([ $_POST['id'] ]);
 	while($rowRespuestas = $sqlRespuestas->fetch(PDO::FETCH_ASSOC))
 		$respuestas [] = $rowRespuestas;
@@ -163,7 +156,7 @@ function listarDetalle($db){
 
 function actualizarCabecera($db){
 	$s = $_POST['servicio'];
-	$sql = $db->prepare("UPDATE `servicios` SET `codigo` = ?, titulo=? WHERE `id` = ?;");
+	$sql = $db->prepare("UPDATE `pagos` SET `codigo` = ?, titulo=? WHERE `id` = ?;");
 	if($sql->execute([ $s['codigo'], $s['titulo'], $s['id'] ])){
 		echo 'ok';
 	}else{
@@ -172,11 +165,11 @@ function actualizarCabecera($db){
 }
 
 function cambiarEtapa($db){
-	$sql = $db->prepare("UPDATE `servicios` SET `proceso` = ? WHERE `id` = ?;");
+	$sql = $db->prepare("UPDATE `pagos` SET `proceso` = ? WHERE `id` = ?;");
 	if($sql->execute([ $_POST['etapa'], $_POST['id'] ])){
-		$sqlMov = $db->prepare("INSERT INTO movimientos (idUsuario,idServicio,idMovimiento,fecha) values(
+		/* $sqlMov = $db->prepare("INSERT INTO movimientos (idUsuario,idServicio,idMovimiento,fecha) values(
 			?,?,?, now() );");
-			$sqlMov->execute([ $_POST['idUsuario'], $_POST['id'], $_POST['etapa'] ]);
+		$sqlMov->execute([ $_POST['idUsuario'], $_POST['id'], $_POST['etapa'] ]); */
 		echo 'ok';
 	}else{
 		echo 'error';
@@ -184,7 +177,7 @@ function cambiarEtapa($db){
 }
 
 function quienAccede($db){
-	$sql = $db->prepare("SELECT * FROM `servicios_empleados` where idServicio = ? and idUsuario = ? and activo = 1");
+	$sql = $db->prepare("SELECT * FROM `pagos_empleados` where idPago = ? and idUsuario = ? and activo = 1");
 	if($sql->execute([ $_POST['idServicio'], $_POST['idUsuario'] ])){
 		$contar = $sql->rowCount();
 		if( $contar == 0 ) echo 'noAccess';
@@ -198,8 +191,8 @@ function quienAccede($db){
 }
 
 function addUser($db){
-	$sql = $db->prepare("INSERT INTO `servicios_empleados`(
-	 `idServicio`, `idUsuario`, `quienAsigna`) VALUES (
+	$sql = $db->prepare("INSERT INTO `pagos_empleados`(
+	 `idPago`, `idUsuario`, `quienAsigna`) VALUES (
 		?, ?, ?);");
 	if($sql->execute([ $_POST['idServicio'], $_POST['idUsuario'], $_POST['quienAsigna'] ])){
 		echo 'ok';
@@ -218,7 +211,7 @@ function eliminarRespuesta($db){
 }
 
 function borrarLector($db){
-	$sql = $db->prepare("UPDATE `servicios_empleados` SET `activo` = '0' WHERE `idServicio` = ? and idUsuario = ? and activo = 1");
+	$sql = $db->prepare("UPDATE `pagos_empleados` SET `activo` = '0' WHERE `idPago` = ? and idUsuario = ? and activo = 1");
 	if($sql->execute([ $_POST['idServicio'], $_POST['idUsuario'] ])){
 		echo 'ok';
 	}else{
@@ -227,7 +220,7 @@ function borrarLector($db){
 }
 
 function eliminar($db){
-	$sql = $db->prepare("UPDATE `servicios` SET `activo` = '0' WHERE `id` = ?;");
+	$sql = $db->prepare("UPDATE `pagos` SET `activo` = '0' WHERE `id` = ?;");
 	if($sql->execute([ $_POST['id'] ])){
 		echo 'ok';
 	}else{

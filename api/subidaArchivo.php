@@ -19,9 +19,9 @@ if (isset($_FILES['pdf'])){
 		
 		
 		$sql = $db->prepare("INSERT INTO `documentos`(
-			`idServicio`, `idUsuario`, `tipo`, `asunto`, `ruta`, `fecha`) VALUES (?, ?, ?, ?, ?, ?);");
+			`idServicio`, `idUsuario`, `tipo`, `asunto`, `ruta`, `fecha`, `grupo`) VALUES (?, ?, ?, ?, ?, ?, ?);");
 		$sql->execute([
-			$_POST['idServicio'], $_POST['idUsuario'], $_POST['tipo'], $_POST['asunto'], $uniqueFilename, $_POST['fecha'] ]);
+			$_POST['idServicio'], $_POST['idUsuario'], $_POST['tipo'], $_POST['asunto'], $uniqueFilename, $_POST['fecha'], $_POST['grupo'] ]);
 		$idDocumento = $db->lastInsertId();
 		echo json_encode( array('subida' => $uniqueFilename, 'estado' => 'ok', 'id'=> $idDocumento ));
 		//echo 'ok';
