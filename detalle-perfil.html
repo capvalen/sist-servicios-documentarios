@@ -66,33 +66,98 @@
 				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span> <a class="text-decoration-none" href="salir.html"><i class="bi bi-door-open"></i> Cerrar sesión</a></small></p>
 			</div>
 			<hr class="opacity-25">
+			
+			<h1 class="text-start">Perfil de usuario</h1>
 
-			<h1 class="text-start">Usuarios</h1>
-			<a href="registro-usuario.html" class="btn btn-outline-secondary" v-if="verificarAcceso()"> <i class="bi bi-person-fill-add"></i> Agregar nuevo usuario</a>
-			<table class="table table-hover my-3">
+			<div class="card">
+				<div class="card-body">
+					<div class="row row-cols-3">
+						<div class="col">
+							<label class="fw-bold"> Apellido Paterno: </label>
+							<p class="mb-0">{{usuario.paterno}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Apellido Materno: </label>
+							<p class="mb-0">{{usuario.materno}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Nombres: </label>
+							<p class="mb-0">{{usuario.nombres}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> DNI: </label>
+							<p class="mb-0">{{usuario.dni}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> País: </label>
+							<p class="mb-0">
+								<span v-if="usuario.pais==1">Perú</span>
+								<span v-else>Extranjero</span>
+							</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Departamento: </label>
+							<p class="mb-0">{{usuario.nomDepartamento ?? '-'}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Provincia: </label>
+							<p class="mb-0">{{usuario.nomProvincia ?? '-'}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Distrito: </label>
+							<p class="mb-0">{{usuario.nomDistrito ?? '-'}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Dirección: </label>
+							<p class="mb-0">{{usuario.direccion ?? '-'}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Celular 1: </label>
+							<p class="mb-0">{{usuario.celular1 ?? '-'}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Celular 2: </label>
+							<p class="mb-0">{{usuario.celular2 ?? '-'}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Correo Electrónico: </label>
+							<p class="mb-0">{{usuario.correo ?? '-'}}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<h5 class="fw-bold my-3">Documentos asignados:</h5>
+
+			<table class="table table-hover">
 				<thead>
-					<tr>
-						<th>N°</th>
-						<th>ID</th>
-						<th>Apellidos y Nombres</th>
-						<th>Nivel</th>
-						<th>N° Documentos</th>
-						<th v-if="verificarAcceso()">@</th>
-					</tr>
+					<th>N°</th>
+					<th>Código</th>
+					<th>Asunto</th>
+					<th>Colaborador</th>
+					<th>Fecha</th>
+					<th>Proceso</th>
 				</thead>
 				<tbody>
-					<tr v-for="(usuario, index) in usuarios">
+					<tr v-for="(tarea, index) in servicios">
 						<td>{{index+1}}</td>
-						<td>{{usuario.idUsuario}}</td>
-						<td class="text-capitalize"><a :href="'detalle-perfil.html?id='+ usuario.idUsuario" class="text-decoration-none">{{usuario.paterno}} {{usuario.materno}} {{usuario.nombres}}</a></td>
-						<td>
-							<span v-if="usuario.nivel==1">Administrador</span>
-							<span v-else>Colaborador</span>
+						<td class="text-uppercase">{{tarea.codigo}}</td>
+						<td class="text-capitalize">
+							<a v-if="tarea.codigo" :href="'detalle-contrato.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
 						</td>
-						<td>{{usuario.cantDocs}}</td>
-						<th v-if="verificarAcceso()">
-							<a :href="'editar-usuario.html?id='+usuario.idUsuario" class="btn btn-sm btn-outline-primary" title="Editar usuario"><i class="bi bi-pencil-square"></i></a>
-						</th>
+						<td class="text-capitalize">{{tarea.nomUsuario}}</td>
+						<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
+						<td>
+							<span v-if="tarea.proceso == 1" >Asignado</span>
+							<span v-if="tarea.proceso == 2" >En proceso</span>
+							<span v-if="tarea.proceso == 3" >Observado</span>
+							<span v-if="tarea.proceso == 4" >Culminado</span>
+							<span v-if="tarea.proceso == 5" >Anulado</span>
+						</td>
+						
+					</tr>
+					<tr v-if="servicios.length==0">
+						<td colspan="7">No se encontraron datos registrados</td>
 					</tr>
 				</tbody>
 			</table>
@@ -107,23 +172,29 @@
 		createApp({
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
-				const usuarios = ref([])
+				const servicios = ref([])
+				const usuario = ref([])
+				let id = ref(-1)
 
 				onMounted(() => {
+					const url = new URL(window.location.href);
+					id = url.searchParams.get('id');
+
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
-						pedirDatos()
+						axios.post(servidor + 'Servicio.php',{
+							pedir:'listarMisServicios',
+							idUsuario: id
+						}).then(res=> {
+							servicios.value = res.data.servicios
+							usuario.value = res.data.usuario
+						})
 					}
 				})
 
-				function pedirDatos(){
-					axios.post(servidor + 'Usuario.php',{
-						pedir:'listar'
-					}).then(res=> {
-						usuarios.value = res.data
-					})
+				function fechaLatam(fecha){
+					if(fecha) return moment(fecha).format('DD/MM/YYYY')
 				}
-
 				function verificarAcceso(){
 					if(localStorage.getItem('nivel')=='1') return true
 					else return false
@@ -131,7 +202,7 @@
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 
 				return {
-					servidor, usuarios, verificarAcceso, nombreCompletoSesion
+					servidor, servicios, fechaLatam, verificarAcceso, nombreCompletoSesion, usuario
 				}
 			}
 		}).mount('#app')

@@ -24,6 +24,24 @@
 				<a href="contratos.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-file-medical"></i> Contratos</span> 
 				</a>
+				<a href="pagos.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-wallet2"></i> Pagos y detracciones</span> 
+				</a>
+				<a href="clientes.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Clientes</span> 
+				</a>
+				<a href="compras.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-piggy-bank"></i> Compras</span> 
+				</a>
+				<a href="ventas.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-cart"></i> Ventas</span> 
+				</a>
+				<a href="cuentas-por-cobrar.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-bag"></i> Cuentas por cobrar</span> 
+				</a>
+				<a href="cuentas-por-pagar.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-bag"></i> Cuentas por pagar</span> 
+				</a>
 				<a href="usuarios.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Usuarios</span> 
 				</a>
@@ -39,7 +57,7 @@
 			<div class="d-flex justify-content-between me-5">
 				<p class="mb-0 text-muted"><small><strong>Usuario actual:</strong> <span class="text-capitalize">{{nombreCompletoSesion()}}</span></small></p>
 				<p class="mb-0 text-muted"><small><strong>Nivel: </strong> 
-				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span></small></p>
+				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span> <a class="text-decoration-none" href="salir.html"><i class="bi bi-door-open"></i> Cerrar sesión</a></small></p>
 			</div>
 			<hr class="opacity-25">
 			<h1 class="text-start">Bienvenido al Sistema de Grupo Cimal Perú</h1>
@@ -104,7 +122,7 @@
 	
 		createApp({
 			setup() {
-				const servidor = 'https://grupocimalperu.com/intranet/api/'
+				const servidor = 'http://localhost/documentos-cimal/api/'
 				
 				onMounted(()=>{
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'

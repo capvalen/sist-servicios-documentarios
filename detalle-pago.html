@@ -69,7 +69,7 @@
 				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span> <a class="text-decoration-none" href="salir.html"><i class="bi bi-door-open"></i> Cerrar sesión</a></small></p>
 			</div>
 			<hr class="opacity-25">
-			<h1 class="text-start">Registro de servicio: <span class="text-capitalize">{{servicio.titulo}}</span></h1>
+			<h1 class="text-start">Registro de pago: <span class="text-capitalize">{{servicio.titulo}}</span></h1>
 			<div class="card mb-3">
 				<div class="card-body">
 					<h5 class="fw-bold">Datos iniciales</h5>
@@ -306,7 +306,7 @@
 						}else{
 							adjunto.value.tipo = 2
 							//pedir quien accede
-							axios.post(servidor + 'Servicio.php',{
+							axios.post(servidor + 'Pago.php',{
 								pedir:'quienAccede',
 								idUsuario: localStorage.getItem('idUsuario'),
 								idServicio: idServicio
@@ -328,7 +328,7 @@
 				})
 
 				function pedirDatos(){
-					axios.post(servidor + 'Servicio.php',{
+					axios.post(servidor + 'Pago.php',{
 						pedir:'listarDetalle',
 						id: idServicio
 					}).then(res=> {
@@ -346,7 +346,7 @@
 				}
 
 				function cambiarEtapa(){
-					axios.post(servidor + 'Servicio.php',{
+					axios.post(servidor + 'Pago.php',{
 						pedir:'cambiarEtapa',
 						id: idServicio,
 						etapa: servicio.value.proceso,
@@ -367,7 +367,7 @@
 				}
 
 				function addUser(){
-					axios.post(servidor + 'Servicio.php',{
+					axios.post(servidor + 'Pago.php',{
 						pedir:'addUser',
 						idServicio: idServicio,
 						idUsuario: asignarIdUsuario.value,
@@ -400,7 +400,7 @@
 						confirmButtonText: "Sí, borrar"
 					}).then((result) => {
 						if (result.isConfirmed) {
-							axios.post(servidor+'Servicio.php',{
+							axios.post(servidor+'Pago.php',{
 								pedir:'borrarLector',
 								idServicio: idServicio,
 								idUsuario: lectores.value[index].idUsuario
@@ -425,7 +425,7 @@
     		  formData.append('tipo', adjunto.value.tipo);
     		  formData.append('asunto', adjunto.value.asunto);
     		  formData.append('fecha', adjunto.value.fecha);
-    		  formData.append('grupo', 1); //idGrupo = 1 => servicios
+    		  formData.append('grupo', 2); //idGrupo = 2 => pagos
 
 					axios.post(servidor + 'subidaArchivo.php', formData, {
 						headers: {
@@ -505,7 +505,7 @@
 						confirmButtonText: "Si, eliminar"
 					}).then((result) => {
 						if (result.isConfirmed) {
-							axios.post(servidor + 'Servicio.php',{
+							axios.post(servidor + 'Pago.php',{
 								pedir: 'eliminarRespuesta',
 								idRespuesta: respuestas.value[index].id
 							}).then(res=>{

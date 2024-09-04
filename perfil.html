@@ -29,6 +29,24 @@
 				<a href="contratos.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-file-medical"></i> Contratos</span>
 				</a>
+				<a href="pagos.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-wallet2"></i> Pagos y detracciones</span> 
+				</a>
+				<a href="clientes.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Clientes</span> 
+				</a>
+				<a href="compras.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-piggy-bank"></i> Compras</span> 
+				</a>
+				<a href="ventas.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-cart"></i> Ventas</span> 
+				</a>
+				<a href="cuentas-por-cobrar.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-bag"></i> Cuentas por cobrar</span> 
+				</a>
+				<a href="cuentas-por-pagar.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-bag"></i> Cuentas por pagar</span> 
+				</a>
 				<a href="usuarios.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Usuarios</span>
 				</a>
@@ -45,7 +63,7 @@
 			<div class="d-flex justify-content-between me-5">
 				<p class="mb-0 text-muted"><small><strong>Usuario actual:</strong> <span class="text-capitalize">{{nombreCompletoSesion()}}</span></small></p>
 				<p class="mb-0 text-muted"><small><strong>Nivel: </strong> 
-				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span></small></p>
+				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span> <a class="text-decoration-none" href="salir.html"><i class="bi bi-door-open"></i> Cerrar sesión</a></small></p>
 			</div>
 			<hr class="opacity-25">
 			
@@ -56,47 +74,54 @@
 					<div class="row row-cols-3">
 						<div class="col">
 							<label class="fw-bold"> Apellido Paterno: </label>
-							<p class="mb-0">Pariona</p>
+							<p class="mb-0">{{usuario.paterno}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Apellido Materno: </label>
-							<p class="mb-0">Valencia</p>
+							<p class="mb-0">{{usuario.materno}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Nombres: </label>
-							<p class="mb-0">Juan Carlos</p>
+							<p class="mb-0">{{usuario.nombres}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> DNI: </label>
-							<p class="mb-0">12345678</p>
+							<p class="mb-0">{{usuario.dni}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> País: </label>
-							<p class="mb-0">Perú</p>
+							<p class="mb-0">
+								<span v-if="usuario.pais==1">Perú</span>
+								<span v-else>Extranjero</span>
+							</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Departamento: </label>
-							<p class="mb-0">Lima</p>
+							<p class="mb-0">{{usuario.nomDepartamento ?? '-'}}</p>
+						</div>
+						<div class="col">
+							<label class="fw-bold"> Provincia: </label>
+							<p class="mb-0">{{usuario.nomProvincia ?? '-'}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Distrito: </label>
-							<p class="mb-0">San Isidro</p>
+							<p class="mb-0">{{usuario.nomDistrito ?? '-'}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Dirección: </label>
-							<p class="mb-0">Av. Paseo de la República 123</p>
+							<p class="mb-0">{{usuario.direccion ?? '-'}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Celular 1: </label>
-							<p class="mb-0">987654321</p>
+							<p class="mb-0">{{usuario.celular1 ?? '-'}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Celular 2: </label>
-							<p class="mb-0">987654322</p>
+							<p class="mb-0">{{usuario.celular2 ?? '-'}}</p>
 						</div>
 						<div class="col">
 							<label class="fw-bold"> Correo Electrónico: </label>
-							<p class="mb-0">carlos@ejemplo.com</p>
+							<p class="mb-0">{{usuario.correo ?? '-'}}</p>
 						</div>
 					</div>
 				</div>
@@ -146,8 +171,9 @@
 
 		createApp({
 			setup() {
-				const servidor = 'https://grupocimalperu.com/intranet/api/'
+				const servidor = 'http://localhost/documentos-cimal/api/'
 				const servicios = ref([])
+				const usuario = ref([])
 
 				onMounted(() => {
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
@@ -156,7 +182,8 @@
 							pedir:'listarMisServicios',
 							idUsuario: localStorage.getItem('idUsuario')
 						}).then(res=> {
-							servicios.value = res.data
+							servicios.value = res.data.servicios
+							usuario.value = res.data.usuario
 						})
 					}
 				})
@@ -171,7 +198,7 @@
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 
 				return {
-					servidor, servicios, fechaLatam, verificarAcceso, nombreCompletoSesion
+					servidor, servicios, fechaLatam, verificarAcceso, nombreCompletoSesion, usuario
 				}
 			}
 		}).mount('#app')
