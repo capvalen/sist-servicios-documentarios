@@ -201,7 +201,7 @@
 						pedir:'listarMisServicios',
 						idUsuario: localStorage.getItem('idUsuario')
 					}).then(res=> {
-						servicios.value = res.data
+						servicios.value = res.data.servicios
 					})
 				}
 				

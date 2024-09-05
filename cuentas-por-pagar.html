@@ -61,7 +61,7 @@
 			</div>
 			<hr class="opacity-25">
 
-			<h1 class="text-start">Sección Pagos y detracciones</h1>
+			<h1 class="text-start">Sección Cuentas por Pagar</h1>
 			<div class="card">
 				<div class="card-body">
 					<div class="row">
@@ -69,17 +69,17 @@
 							<label for=""><i class="bi bi-funnel"></i> Estado</label>
 							<select class="form-select" id="sltEstado" v-model="filtro.estado">
 								<option value="-1">Todos</option>
-								<option value="1">Asignado</option>
-								<option value="2">En proceso</option>
-								<option value="3">Observado</option>
-								<option value="4">Culminado</option>
+								<option value="6">Pendiente</option>
+								<option value="7">Procesado</option>
 								<option value="5">Anulado</option>
 							</select>
 						</div>
 						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Colaborador</label>
-							<select class="form-select" id="sltColaborador">
+							<label for=""><i class="bi bi-funnel"></i> Tipo de pago</label>
+							<select class="form-select" id="sltDirecto" v-model="filtro.directo">
 								<option value="-1">Todos</option>
+								<option value="1">Directo</option>
+								<option value="2">Indirecto</option>
 							</select>
 						</div>
 						<div class="col">
@@ -87,30 +87,31 @@
 							<input type="date" class="form-control" v-model="filtro.fecha">
 						</div>
 						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Código</label>
-							<input type="text" class="form-control" placeholder="Código..." autocomplete="off" v-model="filtro.codigo">
+							<label for=""><i class="bi bi-funnel"></i> Correlativo</label>
+							<input type="text" class="form-control" placeholder="Correlativo..." autocomplete="off" v-model="filtro.codigo">
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="d-flex justify-content-between my-3 d-grid gap-2">
 				<div>
-					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false" v-if="verificarAcceso()"><i class="bi bi-database"></i> Crear nuevo pago / detracción</button>
+					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false" v-if="verificarAcceso()"><i class="bi bi-database"></i> Crear nueva cuenta por pagar</button>
 				</div>
 				<div class="d-flex d-grid gap-2">
 					<button class="btn btn-outline-secondary" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar filtro</button>
 					<button class="btn btn-outline-secondary" @click="filtrar()"><i class="bi bi-funnel"></i> Aplicar filtro</button>
 				</div>
 			</div>
-			<p>A continuación se muestran todos los pagos</p>
+			<p>A continuación se muestran todos las cuentas por pagar</p>
 			<div class="table-responsive">
 				<table class="table table-hover">
 					<thead>
 						<th>N°</th>
-						<th>Código</th>
+						<th>Correlativo</th>
 						<th>Asunto</th>
-						<th>Colaborador</th>
 						<th>Fecha</th>
+						<th>Comprobante</th>
+						<th>Total</th>
 						<th>Proceso</th>
 						<th v-if="verificarAcceso()">Acciones</th>
 					</thead>
@@ -119,15 +120,23 @@
 							<td>{{index+1}}</td>
 							<td class="text-uppercase">{{tarea.codigo}}</td>
 							<td class="text-capitalize">
-								<a v-if="tarea.codigo" :href="'detalle-pago.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
+								<a :href="'detalle-cuentas-por-cobrar.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
 							</td>
-							<td class="text-capitalize">{{tarea.nomUsuario}}</td>
 							<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
 							<td>
-								<span v-if="tarea.proceso == 1" >Asignado</span>
-								<span v-if="tarea.proceso == 2" >En proceso</span>
-								<span v-if="tarea.proceso == 3" >Observado</span>
-								<span v-if="tarea.proceso == 4" >Culminado</span>
+								<span v-if="tarea.idComprobante==1">Boleta de venta</span>
+								<span v-if="tarea.idComprobante==2">Factura</span>
+								<span v-if="tarea.idComprobante==3">Recibo por Honorarios</span>
+								<span v-if="tarea.idComprobante==4">Ticket</span>
+								<span v-if="tarea.idComprobante==5">Nota de venta</span>
+								<span v-if="tarea.idComprobante==6">Cotización</span>
+								<span v-if="tarea.idComprobante==7">Ninguno</span>
+								<span v-if="tarea.idComprobante==8">Otros</span>
+							</td>
+							<td class="text-capitalize">S/ {{tarea.total}}</td>
+							<td>
+								<span v-if="tarea.proceso == 6" >Pendiente</span>
+								<span v-if="tarea.proceso == 7" >Procesado</span>
 								<span v-if="tarea.proceso == 5" >Anulado</span>
 							</td>
 							<td class="d-flex d-grid gap-2" v-if="verificarAcceso()">
@@ -157,8 +166,29 @@
 						<div class="modal-body">
 							<p>Nombre</p>
 							<input type="text" class="form-control mb-3" autocomplete="off" v-model="servicio.titulo">
-							<p>Código personalizado</p>
+							<p>Serie-Correlativo</p>
 							<input type="text" class="form-control" autocomplete="off" v-model="servicio.codigo">
+							<p class="mt-3">Tipo de comprobante</p>
+							<select class="form-select" id="sltTipoPago" v-model="servicio.idComprobante">
+								<option value="1">Boleta de venta</option>
+								<option value="2">Factura</option>
+								<option value="3">Recibo por Honorarios</option>
+								<option value="4">Ticket</option>
+								<option value="5">Nota de venta</option>
+								<option value="6">Cotización</option>
+								<option value="7">Ninguno</option>
+								<option value="8">Otros</option>
+							</select>
+							<p class="mt-3">R.U.C.</p>
+							<input type="text" class="form-control" autocomplete="off" v-model="servicio.ruc">
+							<p class="mt-3">Razón social</p>
+							<input type="text" class="form-control" autocomplete="off" v-model="servicio.razon">
+							<p class="mt-3">Monto base (S/)</p>
+							<input type="number" class="form-control" autocomplete="off" v-model="servicio.base" @keyup="calcularTotal()">
+							<p class="mt-3">Monto IGV (S/)</p>
+							<input type="number" class="form-control" autocomplete="off" v-model="servicio.igv" @keyup="calcularTotal()">
+							<p class="mt-3">Total (S/)</p>
+							<input type="number" class="form-control" autocomplete="off" v-model="servicio.total">
 						</div>
 						<div class="modal-footer border-0">
 							<button v-if="!seEdita" type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="crearServicio()"><i class="bi bi-database"></i> Crear nuevo</button>
@@ -180,11 +210,11 @@
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
 				const servicio = ref({
-					codigo:'', titulo:'', id:-1
+					codigo:'', titulo:'', id:-1, directo:1, idComprobante:1, ruc: '',razon: '', base: 0, igv: 0, total: 0
 				})
 				const servicios = ref([])
 				const filtro = ref({
-					estado:-1, fecha:null, colaborador:-1, codigo:''
+					estado:-1, fecha:null, colaborador:-1, codigo:'', directo:-1
 				})
 				const seEdita = ref(false)
 				let indexGlobal=-1
@@ -197,9 +227,10 @@
 				})
 
 				function pedirDatos(){
-					axios.post(servidor + 'Pago.php',{
+					axios.post(servidor + 'CuentasPorCobrar.php',{
 						pedir:'listarMisServicios',
-						idUsuario: localStorage.getItem('idUsuario')
+						idUsuario: localStorage.getItem('idUsuario'),
+						categoria: 4 //ctas por pagar
 					}).then(res=> {
 						servicios.value = res.data
 					})
@@ -207,10 +238,10 @@
 				
 				function crearServicio(){
 					
-					axios.post(servidor + 'Pago.php',{
+					axios.post(servidor + 'CuentasPorCobrar.php',{
 						pedir:'crear',
 						servicio : servicio.value,
-						idUsuario: localStorage.getItem('idUsuario')
+						idUsuario: localStorage.getItem('idUsuario'), categoria: 4
 					}).then(res=> {
 						pedirDatos()
 						if(res.data.id){
@@ -230,7 +261,7 @@
 
 				function limpiar(){
 					filtro.value = {
-						estado:-1, fecha:null, colaborador:-1, codigo:''
+						estado:-1, fecha:null, colaborador:-1, codigo:'', directo:-1,  categoria: 4
 					}
 					filtrar()
 				}
@@ -241,7 +272,7 @@
 				}
 
 				function actualizarServicio(){
-					axios.post(servidor + 'Pago.php',{
+					axios.post(servidor + 'CuentasPorCobrar.php',{
 						pedir: 'actualizarCabecera',
 						servicio : servicio.value
 					}).then(res=>{
@@ -273,7 +304,7 @@
 						}*/
 					});
 					if (text) { //se aprueba
-						axios.post(servidor + 'Pago.php',{
+						axios.post(servidor + 'CuentasPorCobrar.php',{
 							pedir:'eliminar',
 							id : servicios.value[indexGlobal].id,
 						}).then(res =>{
@@ -299,11 +330,20 @@
 				}
 
 				function filtrar(){
-					axios.post(servidor + 'Pago.php',{
+					axios.post(servidor + 'CuentasPorCobrar.php',{
 						pedir: 'filtrar',
 						idUsuario: localStorage.getItem('idUsuario'),
-						filtro: filtro.value
+						filtro: filtro.value, categoria: 4
 					}).then(res=> servicios.value = res.data )
+				}
+
+				function calcularTotal(){
+					let base = parseFloat(servicio.value.base)
+					base = isNaN(base) ? 0 : base;
+					let igv = parseFloat(servicio.value.igv)
+					igv = isNaN(igv) ? 0 : igv;
+
+					servicio.value.total = (base + igv) ?? 0
 				}
 
 				function fechaLatam(fecha){
@@ -312,7 +352,7 @@
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 				
 				return {
-					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal
 				}
 			}
 		}).mount('#app')
