@@ -45,7 +45,7 @@
 				<a href="usuarios.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Usuarios</span> 
 				</a>
-				<a type="button" class="list-group-item list-group-item-action">
+				<a href="reportes.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-file-bar-graph"></i> Reportes</span> 
 				</a>
 				<a href="perfil.html" type="button" class="list-group-item list-group-item-action">
@@ -109,6 +109,7 @@
 						<th>N°</th>
 						<th>Código</th>
 						<th>Asunto</th>
+						<th>Moneda</th>
 						<th>Colaborador</th>
 						<th>Fecha</th>
 						<th>Proceso</th>
@@ -120,6 +121,10 @@
 							<td class="text-uppercase">{{tarea.codigo}}</td>
 							<td class="text-capitalize">
 								<a v-if="tarea.codigo" :href="'detalle-pago.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
+							</td>
+							<td>
+								<span v-if="tarea.moneda==1">Soles</span>
+								<span v-else>Dólares</span>
 							</td>
 							<td class="text-capitalize">{{tarea.nomUsuario}}</td>
 							<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
@@ -159,6 +164,11 @@
 							<input type="text" class="form-control mb-3" autocomplete="off" v-model="servicio.titulo">
 							<p>Código personalizado</p>
 							<input type="text" class="form-control" autocomplete="off" v-model="servicio.codigo">
+							<p>Moneda</p>
+							<select class="form-select" id="sltMoneda" v-model="servicio.moneda">
+								<option value="1">Soles</option>
+								<option value="2">Dólares</option>
+							</select>
 						</div>
 						<div class="modal-footer border-0">
 							<button v-if="!seEdita" type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="crearServicio()"><i class="bi bi-database"></i> Crear nuevo</button>
@@ -180,7 +190,7 @@
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
 				const servicio = ref({
-					codigo:'', titulo:'', id:-1
+					codigo:'', titulo:'', id:-1, moneda:1
 				})
 				const servicios = ref([])
 				const filtro = ref({

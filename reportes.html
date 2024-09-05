@@ -61,24 +61,110 @@
 			</div>
 			<hr class="opacity-25">
 			
-			<h1 class="text-start">PLANTILLA -BLANK</h1>
-		
+			<h1 class="text-start">Reportes</h1>
+
+			<div class="card">
+				<div class="card-body">
+					<div class="row row-cols-3">
+						<div class="col">
+							<label for="">Tipo de reporte</label>
+							<select class="form-select" id="sltTipoReporte" v-model="filtro.tipo" @change="resultados=[]">
+								<option value="1">Conglomerado de Compras</option>
+								<option value="2">Conglomerado de Ventas</option>
+								<option value="3">Conglomerado de Ctas. por Cobrar</option>
+								<option value="4">Conglomerado de Ctas. por Pagar</option>
+							</select>
+						</div>
+						<div class="col">
+							<label for="">Fecha inicial</label>
+							<input type="date" class="form-control" v-model="filtro.inicio">
+						</div>
+						<div class="col">
+							<label for="">Fecha final</label>
+							<input type="date" class="form-control" v-model="filtro.fin">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row my-3">
+				<div class="col-5 offset-7 d-grid d-flex justify-content-end">
+					<button class="btn btn-outline-secondary me-1" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar filtro</button>
+					<button class="btn btn-outline-secondary me-1" @click="filtrar()"><i class="bi bi-funnel"></i> Aplicar filtro</button>
+				</div>
+			</div>
+
+			<table class="table table-hover" id="respuestas">
+				<thead>
+					<tr>
+						<th>N°</th>
+						<th>Usuario</th>
+						<th>Fecha</th>
+						<th>Asunto</th>
+						<th>Total</th>
+						<th v-if="[1].includes(filtro.tipo)">Tipo</th>
+						<th>Proceso</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="(respuesta, index) in resultados">
+						<td>{{index+1}}</td>
+						<td class="text-capitalize">{{respuesta.nomUsuario}}</td>
+						<td>{{fechaLatam(respuesta.registro)}}</td>
+						<td class="text-capitalize">{{respuesta.titulo}}</td>
+						<td>S/ {{respuesta.total}}</td>
+						<td  v-if="[1].includes(filtro.tipo)">
+							<span v-if="respuesta.directo==1">Directo</span>
+							<span v-else>Indirecto</span>
+						</td>
+						<td>{{respuesta.nomProceso}}</td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="4" class="text-end"><span class="fw-bold me-3">Total</span></td>
+						<td>S/ {{sumaTotales}}</td>
+					</tr>
+				</tfoot>
+			</table>
 		</section>
+
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 	<script>
-		const { createApp, ref, onMounted } = Vue
+		const { createApp, ref, onMounted, computed } = Vue
 	
 		createApp({
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
-				
+				const filtro = ref({
+					inicio: moment().format('YYYY-MM-DD'), fin: moment().format('YYYY-MM-DD'), tipo:1
+				})
+				const resultados = ref([])
+
 				onMounted(()=>{
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
 					}
 				})
+
+				function limpiar(){
+					filtro.value.inicio = moment().format('YYYY-MM-DD')
+					filtro.value.fin = moment().format('YYYY-MM-DD')
+					filtro.value.tipo = 1
+					resultados.value = []
+				}
+
+				function filtrar(){
+					axios.post(servidor + 'Reportes.php',{
+						filtro: filtro.value
+					}).then(res => resultados.value = res.data)
+				}
+
+				const sumaTotales = computed(() => {
+					return resultados.value.reduce((acc, item) => acc + parseFloat(item.total), 0)
+				})
+
 				function fechaLatam(fecha){
 					if(fecha) return moment(fecha).format('DD/MM/YYYY')
 				}
@@ -90,7 +176,7 @@
 					return localStorage.getItem('nombreUsuario')
 				}
 				return {
-					servidor, verificarAcceso, nombreCompletoSesion
+					servidor, verificarAcceso, nombreCompletoSesion, filtro, filtrar, resultados, sumaTotales, fechaLatam, limpiar
 				}
 			}
 		}).mount('#app')
