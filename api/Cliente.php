@@ -9,6 +9,8 @@ switch ($_POST['pedir']) {
 	case 'actualizar': actualizar($db); break;
 	case 'listar': listar($db); break;
 	case 'listarID': listarID($db); break;
+	case 'addUser': addUser($db); break;
+	case 'eliminarRespuesta': eliminarRespuesta($db); break;
 	default: break;
 }
 
@@ -40,14 +42,40 @@ function listar($db){
 
 function listarID($db){
 	$filas = [];
-	$sql=$db->prepare("SELECT count(s.id) as cantDocs, u.* FROM `usuarios` u
-	left join servicios s on s.idUsuario = u.idUsuario WHERE u.activo = 1
-	and u.idUsuario = ?;");
+	$usuarios = []; $documentos = []; $respuestas = [];
+	$sql=$db->prepare("SELECT * from clientes where id = ?;");
 	$sql->execute([ $_POST['id'] ]);
 	$row = $sql->fetch(PDO::FETCH_ASSOC);
-	$filas = $row;
-	
-	echo json_encode($filas);
+		$filas = $row;
+
+	$sqlUsuarios = $db->prepare("SELECT se.`id`, `idCliente`, se.`idUsuario`, se.`fecha`, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `clientes_empleados` se
+	inner join usuarios u on u.idUsuario = se.idUsuario
+	WHERE `idCliente` = ? and se.activo = 1 order by u.paterno;");
+	$sqlUsuarios -> execute([ $_POST['id'] ]);
+	while($rowUsuarios = $sqlUsuarios->fetch(PDO::FETCH_ASSOC))
+		$usuarios [] = $rowUsuarios;
+
+	$sqlDocumentos = $db->prepare("SELECT d.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `documentos` d
+	inner join usuarios u on u.idUsuario = d.idUsuario
+	where idServicio = ? and d.tipo=1 and d.activo=1 and d.grupo=7;");
+	$sqlDocumentos->execute([ $_POST['id'] ]);
+	while($rowDocumentos = $sqlDocumentos->fetch(PDO::FETCH_ASSOC))
+		$documentos [] = $rowDocumentos;
+
+	$sqlRespuestas = $db->prepare("SELECT d.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `documentos` d
+	inner join usuarios u on u.idUsuario = d.idUsuario
+	where idServicio = ? and d.tipo=2 and d.activo=1 and d.grupo=7 order by d.id asc;");
+	$sqlRespuestas->execute([ $_POST['id'] ]);
+	while($rowRespuestas = $sqlRespuestas->fetch(PDO::FETCH_ASSOC))
+		$respuestas [] = $rowRespuestas;
+
+	//$filas['documentos'] = [];
+	echo json_encode(array(
+		'cliente' => $filas,
+		'usuarios' => $usuarios,
+		'documentos' => $documentos,
+		'respuestas' => $respuestas,
+	));
 }
 
 function actualizar($db){
@@ -62,4 +90,24 @@ function actualizar($db){
 	$u['provincia'], $u['distrito'], $u['direccion'], $u['correo'], $u['nivel'], $u['idUsuario']
   ])) echo 'ok';
 	else echo 'error';
+}
+
+function addUser($db){
+	$sql = $db->prepare("INSERT INTO `clientes_empleados`(
+	 `idCliente`, `idUsuario`, `quienAsigna`) VALUES (
+		?, ?, ?);");
+	if($sql->execute([ $_POST['idServicio'], $_POST['idUsuario'], $_POST['quienAsigna'] ])){
+		echo 'ok';
+	}else{
+		echo 'error';
+	}
+}
+
+function eliminarRespuesta($db){
+	$sql = $db->prepare("UPDATE `documentos` SET `activo` = '0' WHERE id = ?;");
+	if($sql->execute([ $_POST['idRespuesta'] ])){
+		echo 'ok';
+	}else{
+		echo 'error';
+	}
 }
