@@ -86,7 +86,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="row my-3">
+			<div class="row my-3" v-if="verificarAcceso()">
 				<div class="col-5 offset-7 d-grid d-flex justify-content-end">
 					<button class="btn btn-outline-secondary me-1" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar filtro</button>
 					<button class="btn btn-outline-secondary me-1" @click="filtrar()"><i class="bi bi-funnel"></i> Aplicar filtro</button>
@@ -111,7 +111,11 @@
 						<td class="text-capitalize">{{respuesta.nomUsuario}}</td>
 						<td>{{fechaLatam(respuesta.registro)}}</td>
 						<td class="text-capitalize">{{respuesta.titulo}}</td>
-						<td>S/ {{respuesta.total}}</td>
+						<td style="white-space: nowrap;">
+							<span v-if="respuesta.moneda==1">S/ </span>
+							<span v-else>$ </span>
+							<span>{{respuesta.total}}</span>
+						</td>
 						<td  v-if="[1].includes(filtro.tipo)">
 							<span v-if="respuesta.directo==1">Directo</span>
 							<span v-else>Indirecto</span>
@@ -122,7 +126,10 @@
 				<tfoot>
 					<tr>
 						<td colspan="4" class="text-end"><span class="fw-bold me-3">Total</span></td>
-						<td>S/ {{sumaTotales}}</td>
+						<td>S/ {{sumaSoles}}
+							<br>
+							$ {{sumaDolares}}
+						</td>
 					</tr>
 				</tfoot>
 			</table>
@@ -161,8 +168,23 @@
 					}).then(res => resultados.value = res.data)
 				}
 
-				const sumaTotales = computed(() => {
-					return resultados.value.reduce((acc, item) => acc + parseFloat(item.total), 0)
+				const sumaSoles = computed(() => {
+					let suma = 0;
+					resultados.value.forEach(item=>{
+						if(item.moneda == 1) suma+=parseFloat(item.total)
+					})
+					return parseFloat(suma).toFixed(2);
+					/*return resultados.value.reduce((acc, item) => {
+						if(item.moneda == 1) acc + parseFloat(item.total)
+						return acc
+					}, 0)*/
+				})
+				const sumaDolares = computed(() => {
+					let sumaD = 0;
+					resultados.value.forEach(item=>{
+						if(item.moneda == 2) sumaD+=parseFloat(item.total)
+					})
+					return parseFloat(sumaD).toFixed(2);
 				})
 
 				function fechaLatam(fecha){
@@ -176,7 +198,7 @@
 					return localStorage.getItem('nombreUsuario')
 				}
 				return {
-					servidor, verificarAcceso, nombreCompletoSesion, filtro, filtrar, resultados, sumaTotales, fechaLatam, limpiar
+					servidor, verificarAcceso, nombreCompletoSesion, filtro, filtrar, resultados, sumaSoles, sumaDolares, fechaLatam, limpiar
 				}
 			}
 		}).mount('#app')

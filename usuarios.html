@@ -86,13 +86,18 @@
 						<td>{{usuario.idUsuario}}</td>
 						<td class="text-capitalize"><a :href="'detalle-perfil.html?id='+ usuario.idUsuario" class="text-decoration-none">{{usuario.paterno}} {{usuario.materno}} {{usuario.nombres}}</a></td>
 						<td>
-							<span v-if="usuario.nivel==1">Administrador</span>
+							<span v-if="usuario.nivel==-1">Solo compras</span>
+							<span v-else-if="usuario.nivel==1">Administrador</span>
 							<span v-else>Colaborador</span>
 						</td>
 						<td>{{usuario.cantDocs}}</td>
 						<th v-if="verificarAcceso()">
 							<a :href="'editar-usuario.html?id='+usuario.idUsuario" class="btn btn-sm btn-outline-primary" title="Editar usuario"><i class="bi bi-pencil-square"></i></a>
+							<button class="btn btn-sm btn-outline-danger ms-1" @click="borrar(index)" title="Eliminar usuario"><i class="bi bi-trash3"></i></button>
 						</th>
+					</tr>
+					<tr v-if="usuarios.length==0">
+						<td colspan="5" >Sin datos o sin acceso</td>
 					</tr>
 				</tbody>
 			</table>
@@ -101,6 +106,8 @@
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 	<script>
 		const { createApp, ref, onMounted } = Vue
 
@@ -108,11 +115,12 @@
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
 				const usuarios = ref([])
+				let indexGlobal=-1
 
 				onMounted(() => {
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
-						pedirDatos()
+						if(verificarAcceso()) pedirDatos()
 					}
 				})
 
@@ -124,6 +132,40 @@
 					})
 				}
 
+				async function borrar(index){
+					indexGlobal = index
+					const { value: text } = await Swal.fire({
+						//input: "text",
+						title: "Borrar Registro",
+						//inputLabel: "¿Desea borrar el servicio?",
+						confirmButtonText:'Sí, borrar',
+						cancelButtonText: 'Cancelar',
+						showCancelButton: true,
+						/*inputValidator: (value) => {
+							if (!value) return "Debe rellenar el campo de motivo";
+						}*/
+					});
+					if (text) { //se aprueba
+						axios.post(servidor + 'Usuario.php',{
+							pedir:'eliminar',
+							id : usuarios.value[indexGlobal].idUsuario,
+						}).then(res =>{
+							if(res.data){
+								Swal.fire({
+									title: '¡Borrado con éxito!',
+									icon: 'success'
+								})
+							}else{
+								Swal.fire({
+									title: 'Hubo un error al insertar',
+									icon: 'error'
+								})
+							}
+							pedirDatos()
+						})
+					}
+				}
+
 				function verificarAcceso(){
 					if(localStorage.getItem('nivel')=='1') return true
 					else return false
@@ -131,7 +173,7 @@
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 
 				return {
-					servidor, usuarios, verificarAcceso, nombreCompletoSesion
+					servidor, usuarios, verificarAcceso, nombreCompletoSesion, borrar
 				}
 			}
 		}).mount('#app')

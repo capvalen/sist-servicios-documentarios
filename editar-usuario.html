@@ -86,9 +86,9 @@
 					</div>
 					<div class="mb-3">
 						<label for="dni">DNI <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" id="dni" maxlength="15" autocomplete="off" v-model="registro.dni" disabled="true">
+						<input type="text" class="form-control" id="dni" maxlength="15" autocomplete="off" v-model="registro.dni" >
 					</div>
-					<div class="mb-3 d-none">
+					<div class="mb-3">
 						<label for="clave">Contraseña</label>
 						<input type="text" class="form-control" id="clave" maxlength="15" autocomplete="off" v-model="registro.clave">
 					</div>
@@ -197,6 +197,7 @@
 							registro.value = res2.data
 							cambioDepartamento()
 							cambioProvincia()
+							registro.value.clave = ''
 						})
 					})
 

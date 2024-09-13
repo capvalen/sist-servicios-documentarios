@@ -220,7 +220,7 @@
 					axios.post(servidor + 'Pago.php',{
 						pedir:'crear',
 						servicio : servicio.value,
-						idUsuario: localStorage.getItem('idUsuario')
+						idUsuario: localStorage.getItem('idUsuario'),
 					}).then(res=> {
 						pedirDatos()
 						if(res.data.id){

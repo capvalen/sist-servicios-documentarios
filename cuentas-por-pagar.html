@@ -111,6 +111,7 @@
 						<th>Asunto</th>
 						<th>Fecha</th>
 						<th>Comprobante</th>
+						<th>Proveedor</th>
 						<th>Total</th>
 						<th>Proceso</th>
 						<th v-if="verificarAcceso()">Acciones</th>
@@ -133,7 +134,12 @@
 								<span v-if="tarea.idComprobante==7">Ninguno</span>
 								<span v-if="tarea.idComprobante==8">Otros</span>
 							</td>
-							<td class="text-capitalize">S/ {{tarea.total}}</td>
+							<td class="text-capitalize">{{tarea.razon}}</td>
+							<td style="white-space: nowrap;">
+								<span v-if="tarea.moneda==1">S/ </span>
+								<span v-else>$ </span>
+								<span>{{tarea.total}}</span>
+							</td>
 							<td>
 								<span v-if="tarea.proceso == 6" >Pendiente</span>
 								<span v-if="tarea.proceso == 7" >Procesado</span>
@@ -183,11 +189,16 @@
 							<input type="text" class="form-control" autocomplete="off" v-model="servicio.ruc">
 							<p class="mt-3">Razón social</p>
 							<input type="text" class="form-control" autocomplete="off" v-model="servicio.razon">
-							<p class="mt-3">Monto base (S/)</p>
+							<p class="mt-3">Moneda</p>
+							<select class="form-select" id="sltMoneda" v-model="servicio.moneda">
+								<option value="1">Soles</option>
+								<option value="2">Dólares</option>
+							</select>
+							<p class="mt-3">Monto base</p>
 							<input type="number" class="form-control" autocomplete="off" v-model="servicio.base" @keyup="calcularTotal()">
-							<p class="mt-3">Monto IGV (S/)</p>
+							<p class="mt-3">Monto IGV </p>
 							<input type="number" class="form-control" autocomplete="off" v-model="servicio.igv" @keyup="calcularTotal()">
-							<p class="mt-3">Total (S/)</p>
+							<p class="mt-3">Total </p>
 							<input type="number" class="form-control" autocomplete="off" v-model="servicio.total">
 						</div>
 						<div class="modal-footer border-0">
@@ -210,7 +221,7 @@
 			setup() {
 				const servidor = 'http://localhost/documentos-cimal/api/'
 				const servicio = ref({
-					codigo:'', titulo:'', id:-1, directo:1, idComprobante:1, ruc: '',razon: '', base: 0, igv: 0, total: 0
+					codigo:'', titulo:'', id:-1, directo:1, idComprobante:1, ruc: '',razon: '', base: 0, igv: 0, total: 0, moneda:1
 				})
 				const servicios = ref([])
 				const filtro = ref({
