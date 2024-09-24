@@ -98,13 +98,14 @@
 					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false" v-if="verificarAcceso()"><i class="bi bi-database"></i> Crear nueva venta</button>
 				</div>
 				<div class="d-flex d-grid gap-2">
+					<button class="btn btn-outline-success" @click="exportarExcel()"><i class="bi bi-file-earmark-excel"></i> Exportar Excel</button>
 					<button class="btn btn-outline-secondary" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar filtro</button>
 					<button class="btn btn-outline-secondary" @click="filtrar()"><i class="bi bi-funnel"></i> Aplicar filtro</button>
 				</div>
 			</div>
 			<p>A continuación se muestran todas las ventas</p>
-			<div class="table-responsive">
-				<table class="table table-hover">
+			<div class="">
+				<table class="table table-hover" id="miTabla">
 					<thead>
 						<th>N°</th>
 						<th>Correlativo</th>
@@ -363,8 +364,42 @@
 					return lista[proceso-1]
 				}
 
+				function exportarExcel() {
+					var tabla = document.getElementById('miTabla');
+					var filas = tabla.rows;
+
+					var contenidoExcel = `
+							<html xmlns:o="urn:schemas-microsoft-com:office:office"
+							xmlns:x="urn:schemas-microsoft-com:office:excel"
+							xmlns="http://www.w3.org/TR/REC-html40">
+							<head><meta charset="UTF-8"></head><body><table>`;
+
+					for (var i = 0; i < filas.length; i++) {
+							contenidoExcel += "<tr>";
+							var celdas = filas[i].cells;
+							for (var j = 0; j < celdas.length; j++) {
+									contenidoExcel += "<td>" + celdas[j].innerText + "</td>";
+							}
+							contenidoExcel += "</tr>";
+					}
+
+					contenidoExcel += `</table></body></html>`;
+
+					// Crear un blob con el contenido de Excel
+					var blob = new Blob([contenidoExcel], { type: 'application/vnd.ms-excel' });
+
+					// Crear un enlace para descargar el archivo
+					var link = document.createElement('a');
+					link.href = URL.createObjectURL(blob);
+					let fecha = moment().format('DD-MM-YYYY[-]hh.mm')
+					link.download = `Ventas_${fecha}.xls`;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+        }
+
 				return {
-					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal, retornarProceso
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal, retornarProceso, exportarExcel
 				}
 			}
 		}).mount('#app')
