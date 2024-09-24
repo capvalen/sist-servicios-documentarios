@@ -109,11 +109,11 @@
 						<th>N°</th>
 						<th>Correlativo</th>
 						<th>Asunto</th>
+						<th>Estado</th>
 						<th>Fecha</th>
 						<th>Comprobante</th>
 						<th>Cliente</th>
 						<th>Total</th>
-						<th>Proceso</th>
 						<th v-if="verificarAcceso()">Acciones</th>
 					</thead>
 					<tbody>
@@ -123,8 +123,9 @@
 							<td class="text-capitalize">
 								<a :href="'detalle-cuentas-por-cobrar.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
 							</td>
+							<td>{{retornarProceso(tarea.proceso)}}</td>
 							<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
-							<td>
+							<td style="white-space: nowrap;">
 								<span v-if="tarea.idComprobante==1">Boleta de venta</span>
 								<span v-if="tarea.idComprobante==2">Factura</span>
 								<span v-if="tarea.idComprobante==3">Recibo por Honorarios</span>
@@ -134,16 +135,11 @@
 								<span v-if="tarea.idComprobante==7">Ninguno</span>
 								<span v-if="tarea.idComprobante==8">Otros</span>
 							</td>
-							<td class="text-capitalize">{{tarea.razon}}</td>
+							<td class="text-capitalize" style="white-space: nowrap;">{{tarea.razon}}</td>
 							<td style="white-space: nowrap;">
 								<span v-if="tarea.moneda==1">S/ </span>
 								<span v-else>$ </span>
 								<span>{{tarea.total}}</span>
-							</td>
-							<td>
-								<span v-if="tarea.proceso == 6" >Pendiente</span>
-								<span v-if="tarea.proceso == 7" >Procesado</span>
-								<span v-if="tarea.proceso == 5" >Anulado</span>
 							</td>
 							<td class="d-flex d-grid gap-2" v-if="verificarAcceso()">
 								<button class="btn btn-sm btn-light text-secondary" @click="prepararEditar(index)" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-pencil-square"></i></button>
@@ -361,9 +357,14 @@
 					if(fecha) return moment(fecha).format('DD/MM/YYYY')
 				}
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
+
+				function retornarProceso(proceso){
+					let lista = ['Asignado', 'En proceso', 'Observado', 'Culminado', 'Anulado', 'Pendiente', 'Procesado']
+					return lista[proceso-1]
+				}
 				
 				return {
-					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal, retornarProceso
 				}
 			}
 		}).mount('#app')

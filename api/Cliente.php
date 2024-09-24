@@ -4,6 +4,7 @@ $_POST = json_decode(file_get_contents('php://input'), true);
 
 include 'conectInfocat.php';
 
+
 switch ($_POST['pedir']) {
 	case 'crear': crear($db); break;
 	case 'actualizar': actualizar($db); break;
@@ -17,12 +18,12 @@ switch ($_POST['pedir']) {
 function crear($db){
 	$u = $_POST['registro'];
 	$sql= $db->prepare("INSERT INTO `clientes`(
-		`ruc`, `razon`, `direccion`, `celular`
+		`ruc`, `razon`, `direccion`, `celular`, `codigo`
 		) VALUES (
-		?, ?, ?, ?
+		?, ?, ?, ?, ?
 		);");
 		if( $sql->execute([
-			$u['ruc'], $u['razon'], $u['direccion'], $u['celular']
+			$u['ruc'], $u['razon'], $u['direccion'], $u['celular'], $u['codigo']
 		]) )
 			$id =  $db->lastInsertId();
 		else $id = -1;
@@ -30,7 +31,7 @@ function crear($db){
 	echo json_encode( array('id' => $id));
 }
 
-function listar($db){
+function listar($db){	
 	$filas = [];
 	$sql=$db->prepare("SELECT * FROM `clientes` order by id desc;");
 	$sql->execute();
@@ -79,15 +80,13 @@ function listarID($db){
 }
 
 function actualizar($db){
-	$u = $_POST['registro'];
-	$sql = $db->prepare("UPDATE `usuarios` SET
-	`paterno`=?,`materno`=?,`nombres`=?,`tipo`= ?,
-	`celular1`=?,`celular2`=?,`pais`=?,`departamento`=?,
-	`provincia`=?,`distrito`=?,`direccion`=?,`correo`=?,`nivel`=? WHERE idUsuario = ?; ");
+	$u = $_POST['servicio'];
+	$sql = $db->prepare("UPDATE `clientes` SET
+	`ruc`=?,`razon`=?,`direccion`=?,
+	`celular`=?,`codigo` = ? WHERE id = ?; ");
 	if($sql->execute([
-		$u['paterno'], $u['materno'], $u['nombres'], $u['tipo'], 
-	$u['celular1'], $u['celular2'], $u['pais'], $u['departamento'], 
-	$u['provincia'], $u['distrito'], $u['direccion'], $u['correo'], $u['nivel'], $u['idUsuario']
+		$u['ruc'], $u['razon'], $u['direccion'],
+		$u['celular'], $u['codigo'], $u['id']
   ])) echo 'ok';
 	else echo 'error';
 }

@@ -9,6 +9,7 @@ switch ($_POST['pedir']) {
 	case 'actualizar': actualizar($db); break;
 	case 'listar': listar($db); break;
 	case 'listarID': listarID($db); break;
+	case 'eliminar': eliminar($db); break;
 	default: break;
 }
 
@@ -63,11 +64,25 @@ function actualizar($db){
 	$sql = $db->prepare("UPDATE `usuarios` SET
 	`paterno`=?,`materno`=?,`nombres`=?,`tipo`= ?,
 	`celular1`=?,`celular2`=?,`pais`=?,`departamento`=?,
-	`provincia`=?,`distrito`=?,`direccion`=?,`correo`=?,`nivel`=? WHERE idUsuario = ?; ");
+	`provincia`=?,`distrito`=?,`direccion`=?,`correo`=?,`nivel`=?, dni =?
+	WHERE idUsuario = ?; ");
 	if($sql->execute([
 		$u['paterno'], $u['materno'], $u['nombres'], $u['tipo'], 
 	$u['celular1'], $u['celular2'], $u['pais'], $u['departamento'], 
-	$u['provincia'], $u['distrito'], $u['direccion'], $u['correo'], $u['nivel'], $u['idUsuario']
-  ])) echo 'ok';
+	$u['provincia'], $u['distrito'], $u['direccion'], $u['correo'], $u['nivel'], $u['dni'], $u['idUsuario']
+  ])){
+		$sqlClave = $db->prepare("UPDATE usuarios set clave = md5(?) where idUsuario = ?;");
+		$sqlClave->execute([ $u['clave'], $u['idUsuario'] ]);
+		echo 'ok';
+	}
 	else echo 'error';
+}
+
+function eliminar($db){
+	$sql = $db->prepare("UPDATE `usuarios` SET `activo` = '0' WHERE `idUsuario` = ?;");
+	if($sql->execute([ $_POST['id'] ])){
+		echo 'ok';
+	}else{
+		echo 'error';
+	}
 }

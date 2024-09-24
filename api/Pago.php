@@ -23,12 +23,12 @@ switch ($_POST['pedir']) {
 function crear($db){
 	$s = $_POST['servicio'];
 	$sql= $db->prepare("INSERT INTO `pagos`(
-		`idUsuario`, `codigo`, `titulo`
+		`idUsuario`, `codigo`, `titulo`, `moneda`
 		) VALUES (
-		?, ?, ?
+		?, ?, ?, ?
 		);");
 		if( $sql->execute([
-			$_POST['idUsuario'], $s['codigo'], $s['titulo']
+			$_POST['idUsuario'], $s['codigo'], $s['titulo'], $s['moneda']
 		]) ){
 			$id =  $db->lastInsertId();
 			/* $sqlMov = $db->prepare("INSERT INTO movimientos (idUsuario,idServicio,idMovimiento,fecha) values(
@@ -55,7 +55,7 @@ function listar($db){
 function listarMisServicios($db){
 	$filas = [];
 	//Analizar el ID que pide datos
-	$sqlUsuario = $db->prepare("SELECT nivel from usuarios where idUsuario = ?; ");
+	$sqlUsuario = $db->prepare("SELECT nivel from usuarios where idUsuario = ?;	 ");
 	$sqlUsuario->execute([ $_POST['idUsuario'] ]);
 	$rowUsuario = $sqlUsuario->fetch(PDO::FETCH_ASSOC);
 
@@ -66,11 +66,15 @@ function listarMisServicios($db){
 		where se.activo = 1 and se.idUsuario = ? order by s.id desc;");
 		$sql->execute([ $_POST['idUsuario'] ]);
 	}
-	if($rowUsuario['nivel'] == 1 ){// admin puede ver todo
+	else if($rowUsuario['nivel'] == 1 ){// admin puede ver todo
 		$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `pagos` s
 		inner join usuarios u on u.idUsuario = s.idUsuario
 		where s.activo = 1 order by s.id desc limit 100;");
 		$sql->execute();
+	}
+	else{
+		echo "[]";
+		return false;
 	}
 	
 	while($row = $sql->fetch(PDO::FETCH_ASSOC))
@@ -156,8 +160,8 @@ function listarDetalle($db){
 
 function actualizarCabecera($db){
 	$s = $_POST['servicio'];
-	$sql = $db->prepare("UPDATE `pagos` SET `codigo` = ?, titulo=? WHERE `id` = ?;");
-	if($sql->execute([ $s['codigo'], $s['titulo'], $s['id'] ])){
+	$sql = $db->prepare("UPDATE `pagos` SET `codigo` = ?, titulo=?, moneda=? WHERE `id` = ?;");
+	if($sql->execute([ $s['codigo'], $s['titulo'], $s['moneda'], $s['id'] ])){
 		echo 'ok';
 	}else{
 		echo 'error';

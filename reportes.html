@@ -100,6 +100,7 @@
 						<th>Usuario</th>
 						<th>Fecha</th>
 						<th>Asunto</th>
+						<th>Estado</th>
 						<th>Total</th>
 						<th v-if="[1].includes(filtro.tipo)">Tipo</th>
 						<th>Proceso</th>
@@ -111,6 +112,7 @@
 						<td class="text-capitalize">{{respuesta.nomUsuario}}</td>
 						<td>{{fechaLatam(respuesta.registro)}}</td>
 						<td class="text-capitalize">{{respuesta.titulo}}</td>
+						<td>{{retornarProceso(respuesta.proceso)}}</td>
 						<td style="white-space: nowrap;">
 							<span v-if="respuesta.moneda==1">S/ </span>
 							<span v-else>$ </span>
@@ -197,8 +199,14 @@
 				function nombreCompletoSesion(){
 					return localStorage.getItem('nombreUsuario')
 				}
+
+				function retornarProceso(proceso){
+					let lista = ['Asignado', 'En proceso', 'Observado', 'Culminado', 'Anulado', 'Pendiente', 'Procesado']
+					return lista[proceso-1]
+				}
+
 				return {
-					servidor, verificarAcceso, nombreCompletoSesion, filtro, filtrar, resultados, sumaSoles, sumaDolares, fechaLatam, limpiar
+					servidor, verificarAcceso, nombreCompletoSesion, filtro, filtrar, resultados, sumaSoles, sumaDolares, fechaLatam, limpiar, retornarProceso
 				}
 			}
 		}).mount('#app')

@@ -24,14 +24,17 @@ function crear($db){
 	$s = $_POST['servicio'];
 	$sql= $db->prepare("INSERT INTO `compra_venta`(
 		`idUsuario`, `codigo`, `titulo`, `proceso`, `directo`, `idComprobante`, `categoria`,
-		`ruc`, `razon`, `base`, `igv`, `total`
+		`ruc`, `razon`, `base`, `igv`, `total`, `moneda`,
+		numeroDocumento, fechaDocumento
 		) VALUES (
 		?, ?, ?, 6, ?, ?, ?,
-		?, ?, ?, ?, ?
+		?, ?, ?, ?, ?, ?,
+		?, ?
 		);");
 		if( $sql->execute([
 			$_POST['idUsuario'], $s['codigo'], $s['titulo'], $s['directo'], $s['idComprobante'],  $_POST['categoria'],
-			$s['ruc'], $s['razon'], $s['base'], $s['igv'], $s['total']
+			$s['ruc'], $s['razon'], $s['base'], $s['igv'], $s['total'], $s['moneda'],
+			$s['numeroDocumento'], $s['fechaDocumento']
 		]) ){
 			$id =  $db->lastInsertId();
 			/* $sqlMov = $db->prepare("INSERT INTO movimientos (idUsuario,idServicio,idMovimiento,fecha) values(
@@ -62,14 +65,18 @@ function listarMisServicios($db){
 	$sqlUsuario->execute([ $_POST['idUsuario'] ]);
 	$rowUsuario = $sqlUsuario->fetch(PDO::FETCH_ASSOC);
 
-	if($rowUsuario['nivel'] == 0 ){//Listar solo los servicios asignados al usuario
+	if($rowUsuario['nivel'] == -1 ){
+		echo "[]"; return false;
+	}
+	else if($rowUsuario['nivel'] == 0 ){//Listar solo los servicios asignados al usuario
 		$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `compra_venta` s
 		inner join pagos_empleados se on se.idPago = s.id
 		inner join usuarios u on u.idUsuario = s.idUsuario
 		where se.activo = 1 and se.idUsuario = ? and categoria = ? order by s.id desc;");
 		$sql->execute([ $_POST['idUsuario'],  $_POST['categoria'] ]);
 	}
-	if($rowUsuario['nivel'] == 1 ){// admin puede ver todo
+	else {// admin puede ver todo
+		//if($rowUsuario['nivel'] == 1 )
 		$sql=$db->prepare("SELECT s.*, concat( u.paterno,' ', u.materno, ' ', u.nombres) as nomUsuario FROM `compra_venta` s
 		inner join usuarios u on u.idUsuario = s.idUsuario
 		where s.activo = 1 and categoria = ? order by s.id desc limit 100;");
@@ -110,6 +117,8 @@ function filtrar($db){
 		where s.activo = 1 {$filtro} and categoria = ?
 		order by s.id;");
 		$sql->execute([ $_POST['categoria'] ]);
+	}else{
+		echo "[]"; return false;
 	}
 	
 	while($row = $sql->fetch(PDO::FETCH_ASSOC))
@@ -161,10 +170,12 @@ function listarDetalle($db){
 function actualizarCabecera($db){
 	$s = $_POST['servicio'];
 	$sql = $db->prepare("UPDATE `compra_venta` SET `codigo` = ?,titulo=?,  directo=?, idComprobante = ?,
-	`ruc`=?, `razon`=?, `base`=?, `igv`=?, `total`=?
+	`ruc`=?, `razon`=?, `base`=?, `igv`=?, `total`=?, moneda=?,
+	numeroDocumento=?, fechaDocumento=?
 	WHERE `id` = ?;");
 	if($sql->execute([ $s['codigo'], $s['titulo'], $s['directo'], $s['idComprobante'],
-	$s['ruc'], $s['razon'], $s['base'], $s['igv'], $s['total'],
+	$s['ruc'], $s['razon'], $s['base'], $s['igv'], $s['total'], $s['moneda'],
+	$s['numeroDocumento'], $s['fechaDocumento'],
 	$s['id'] ])){
 		echo 'ok';
 	}else{
