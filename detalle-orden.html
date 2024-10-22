@@ -190,7 +190,7 @@
 						</div>
 						<div class="col my-2">
 							<label class="fw-bold">Tipo de moneda</label>
-							<select name="" id="sltMoneda" class="form-select">
+							<select name="" id="sltMoneda" class="form-select" v-model="proveedor.moneda">
 								<option value="1">Soles</option>
 								<option value="2">Dólares</option>
 							</select>
@@ -229,40 +229,131 @@
 								<tr v-for="(producto, index) in productos">
 									<td>{{index+1}}</td>
 									<td>
-										<input type="text" class="form-control" v-model="{{producto.solped}}">
+										<input type="text" class="form-control" v-model="producto.solped">
 									</td>
 									<td>
-										<input type="text" class="form-control" v-model="{{producto.pos}}">
+										<input type="text" class="form-control" v-model="producto.pos">
 									</td>
 									<td>
-										<input type="text" class="form-control" v-model="{{producto.codigo}}">
+										<input type="text" class="form-control" v-model="producto.codigo">
 									</td>
 									<td>
-										<input type="text" class="form-control" v-model="{{producto.descripcion}}">
+										<input type="text" class="form-control tdLargo" v-model="producto.descripcion">
 									</td>
 									<td>
-										<input type="text" class="form-control" v-model="{{producto.observaciones}}">
+										<input type="text" class="form-control tdLargo" v-model="producto.observaciones">
 									</td>
 									<td>
-										<input type="date" class="form-control" v-model="{{producto.fecha}}">
+										<input type="date" class="form-control tdLargo" v-model="producto.fecha">
 									</td>
 									<td>
-										<input type="number" class="form-control" v-model="{{producto.cantidad}}">
+										<input type="number" class="form-control" v-model="producto.cantidad">
 									</td>
 									<td>
-										<input type="text" class="form-control" v-model="{{producto.medida}}">
+										<input type="text" class="form-control tdMedio" v-model="producto.medida">
 									</td>
 									<td>
-										<input type="number" class="form-control" v-model="{{producto.precioUnitario}}">
+										<input type="number" class="form-control" v-model="producto.precioUnitario">
 									</td>
-									<td>
-										<input type="number" class="form-control" v-model="{{producto.cantidad * producto.precioUnitario}}">
+									<td class="tdMedio">
+										<p class="mb-0">{{calcularSubTotal(producto)}}</p>
 									</td>
 								</tr>
 							</tbody>
+							<tfoot>
+								<tr>
+									<td class="text-end" colspan="8">Neto</td>
+									<td></td>
+									<td>
+										<span v-if="proveedor.moneda==1">PEN</span>
+										<span v-else>USD</span>
+									</td>
+									<td>0.00</td>
+								</tr>
+								<tr>
+									<td class="text-end" colspan="8">Dscto</td>
+									<td>%</td>
+									<td>
+										<span v-if="proveedor.moneda==1">PEN</span>
+										<span v-else>USD</span>
+									</td>
+									<td>0.00</td>
+								</tr>
+								<tr>
+									<td class="text-end" colspan="8">Cargos</td>
+									<td></td>
+									<td>
+										<span v-if="proveedor.moneda==1">PEN</span>
+										<span v-else>USD</span>
+									</td>
+									<td>0.00</td>
+								</tr>
+								<tr>
+									<td class="text-end" colspan="8">SUB</td>
+									<td></td>
+									<td>
+										<span v-if="proveedor.moneda==1">PEN</span>
+										<span v-else>USD</span>
+									</td>
+									<td>0.00</td>
+								</tr>
+								<tr>
+									<td class="text-end" colspan="8">IGV	</td>
+									<td>18%</td>
+									<td>
+										<span v-if="proveedor.moneda==1">PEN</span>
+										<span v-else>USD</span>
+									</td>
+									<td>0.00</td>
+								</tr>
+								<tr>
+									<td class="text-end" colspan="8">TOTAL</td>
+									<td></td>
+									<td>
+										<span v-if="proveedor.moneda==1">PEN</span>
+										<span v-else>USD</span>
+									</td>
+									<td>0.00</td>
+								</tr>
+							</tfoot>
 						</table>
 					</div>
 
+				</div>
+			</div>
+
+			<div class="card my-3">
+				<div class="card-body">
+					<div class="row">
+						<div class="col">
+							<label class="fw-bold">Observaciones</label>
+							<input type="text" class="form-control" v-model="servicio.observaciones">
+						</div>
+					</div>
+					<div class="row row-col-3">
+						<div class="col">
+							<label class="fw-bold">Teléfono comprador</label>
+							<input type="text" class="form-control" v-model="servicio.telefonoComprador">
+						</div>
+						<div class="col">
+							<label class="fw-bold">Email comprador</label>
+							<input type="text" class="form-control" v-model="servicio.correoComprador">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<label class="fw-bold">Aprobador N°1</label>
+							<input type="text" class="form-control" v-model="servicio.aprobador1">
+						</div>
+						<div class="col-12">
+							<label class="fw-bold">Aprobador N°2</label>
+							<input type="text" class="form-control" v-model="servicio.aprobador2">
+						</div>
+						<div class="col-12">
+							<label class="fw-bold">Aprobador N°3</label>
+							<input type="text" class="form-control" v-model="servicio.aprobador3">
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -272,7 +363,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
-		const { createApp, ref, onMounted, computed, reactive } = Vue
+		const { createApp, ref, onMounted, computed } = Vue
 	
 		const app = createApp({
 			setup() {
@@ -281,8 +372,8 @@
 				const sinAcceso = ref(true)
 				const usuarios = ref([])
 				const servicio = ref([])
-				const proveedor = ref([])
-				const productos = reactive([])
+				const proveedor = ref({moneda:1})
+				const productos = ref([])
 				const esNuevo = ref(true)
 				
 				
@@ -332,14 +423,14 @@
 					})
 				}
 
-				const calcularTotal = (producto) => {
-					return parseFloat(producto.cantidad * producto.precioUnitario).toFixed(2);
-				};
-			
 				function agregarFila(){
-					productos.push({
+					productos.value.push({
 						cantidad: 1, precioUnitario:0
 					})
+				}
+
+				function calcularSubTotal(producto){
+					return `${proveedor.value.moneda==1 ? 'S/ ': '$ '}` + (parseFloat(producto.cantidad) * parseFloat(producto.precioUnitario)).toFixed(2) ?? '0.00'
 				}
 				
 				function fechaLatam(fecha){
@@ -358,10 +449,14 @@
 
 				return {
 					servidor, servicio, fechaLatamLargo, fechaLatam, usuarios, sinAcceso, verificarAcceso, nombreCompletoSesion,
-					esNuevo, proveedor, productos, agregarFila, calcularTotal
+					esNuevo, proveedor, productos, agregarFila, calcularSubTotal
 				}
 			}
 		}).mount('#app')
 	</script>
+	<style>
+    td>.tdLargo { width: 10rem!important; }
+    td>input, .tdMedio>p { width: 6rem!important; }
+</style>
 </body>
 </html>
