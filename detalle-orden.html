@@ -69,14 +69,14 @@
 				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span> <a class="text-decoration-none" href="salir.html"><i class="bi bi-door-open"></i> Cerrar sesión</a></small></p>
 			</div>
 			<hr class="opacity-25">
-			<h1 class="text-start">Registro de Cliente: <span class="text-capitalize">{{servicio.razon}}</span></h1>
+			<h1 class="text-start">Registro de nueva órden de servicio</h1>
 			<div class="card mb-3">
 				<div class="card-body">
 					<h5 class="fw-bold">Datos de cabecera</h5>
 					<div class="row">
 						<div class="col-4 my-2">
 							<label class="fw-bold">N° orden de compra</label>
-							<input type="text" class="form-control" v-model="servicio.ruc">
+							<input type="text" class="form-control" v-model="servicio.orden">
 						</div>
 					</div>
 					<div class="row row-cols-md-3">
@@ -113,15 +113,15 @@
 							<input type="text" class="form-control" v-model="servicio.enviar">
 						</div>
 						<div class="col my-2">
-							<label class="fw-bold">Dirección a</label>
+							<label class="fw-bold">Dirección Destino</label>
 							<input type="text" class="form-control" v-model="servicio.direccionDestino">
 						</div>
 						<div class="col my-2">
-							<label class="fw-bold">Ciudad</label>
+							<label class="fw-bold">Ciudad Destino</label>
 							<input type="text" class="form-control" v-model="servicio.ciudadDestino">
 						</div>
 						<div class="col my-2">
-							<label class="fw-bold">País</label>
+							<label class="fw-bold">País Destino</label>
 							<input type="text" class="form-control" v-model="servicio.paisDestino">
 						</div>
 						<div class="col my-2">
@@ -206,7 +206,7 @@
 			<div class="card my-3">
 				<div class="card-body">
 					<div class="d-flex justify-content-between align-items-center">
-						<h5 class="my-3 fw-bold">Servicios de la Órden</h5>
+						<h5 class="my-3 fw-bold">Servicios de la Orden</h5>
 						<div><button class="btn btn-sm btn-outline-success" @click="agregarFila()"><i class="bi bi-plus-lg"></i> Agregar fila</button></div>
 					</div>
 
@@ -224,6 +224,7 @@
 								<th>U. Med.</th>
 								<th>P. Unit.</th>
 								<th>P. Total</th>
+								<th>@</th>
 							</thead>
 							<tbody>
 								<tr v-for="(producto, index) in productos">
@@ -257,6 +258,10 @@
 									</td>
 									<td class="tdMedio">
 										<p class="mb-0">{{calcularSubTotal(producto)}}</p>
+									</td>
+									<td>
+										<button class="btn btn-sm btn-outline-danger" v-if="esNuevo" title="Borrar fila"><i class="bi bi-x"></i></button>
+										<button class="btn btn-sm btn-outline-danger" @click="eliminar(producto.id, producto.descripcion, index)" v-else title="Eliminar fila"><i class="bi bi-x"></i></button>
 									</td>
 								</tr>
 							</tbody>
@@ -324,14 +329,15 @@
 
 			<div class="card my-3">
 				<div class="card-body">
+					<h5 class="my-3 fw-bold">Datos de pie</h5>
 					<div class="row">
-						<div class="col">
+						<div class="col my-2">
 							<label class="fw-bold">Observaciones</label>
 							<input type="text" class="form-control" v-model="servicio.observaciones">
 						</div>
 					</div>
 					<div class="row row-col-3">
-						<div class="col">
+						<div class="col my-2">
 							<label class="fw-bold">Teléfono comprador</label>
 							<input type="text" class="form-control" v-model="servicio.telefonoComprador">
 						</div>
@@ -341,20 +347,24 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-12">
+						<div class="col-12 my-2">
 							<label class="fw-bold">Aprobador N°1</label>
 							<input type="text" class="form-control" v-model="servicio.aprobador1">
 						</div>
-						<div class="col-12">
+						<div class="col-12 my-2">
 							<label class="fw-bold">Aprobador N°2</label>
 							<input type="text" class="form-control" v-model="servicio.aprobador2">
 						</div>
-						<div class="col-12">
+						<div class="col-12 my-2">
 							<label class="fw-bold">Aprobador N°3</label>
 							<input type="text" class="form-control" v-model="servicio.aprobador3">
 						</div>
 					</div>
 				</div>
+			</div>
+			<div class="d-flex justify-content-center">
+				<button class="btn btn-lg btn-primary" v-if="esNuevo" @click="crear()"><i class="bi bi-plus-lg"></i> Generar orden de servicio</button>
+				<button class="btn btn-lg btn-success" v-else @click="actualizar()"><i class="bi bi-arrow-clockwise"></i> Actualizar orden de servicio</button>
 			</div>
 		</section>
 	</div>
@@ -367,12 +377,15 @@
 	
 		const app = createApp({
 			setup() {
-				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servidor = 'https://grupocimalperu.com/intranet/api/'
 				let idServicio = ref(-1)
 				const sinAcceso = ref(true)
 				const usuarios = ref([])
-				const servicio = ref([])
-				const proveedor = ref({moneda:1})
+				const servicio = ref({id:-1,
+				orden: '', ruc: '', razon: '', direccion: '', celular: '', ciudad: '', pais: '', casilla: '', enviar: '', direccionDestino: '', ciudadDestino: '', paisDestino: '', almacen: '', lugar: '', direccionEntrega: '', contacto: '', observaciones: '', telefonoComprador: '', correoComprador: '', aprobador1: '', aprobador2: '', aprobador3: ''})
+				const proveedor = ref({id:-1,
+					ruc:'',razon:'',direccionDestino:'',celular:'',zip:'',atencion:'',correo:'',emision:'',diasPago:'',referencia:'',moneda:1,incoterm:''
+				})
 				const productos = ref([])
 				const esNuevo = ref(true)
 				
@@ -381,39 +394,79 @@
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
 						const url = new URL(window.location.href);
-						idServicio = url.searchParams.get('id');
+						idServicio = url.searchParams.get('idOrden');
 						const modo = url.searchParams.get('modo');
+						console.log(idServicio, modo)
 						
 						esNuevo.value = (modo == 'editar') ? false:true
-						if(localStorage.getItem('nivel')==1){
-							sinAcceso.value = false
-							//pedirDatos()
-						}else{
-							//pedir quien accede
-							axios.post(servidor + 'Cliente.php',{
-								pedir:'listarID',
-								idUsuario: localStorage.getItem('idUsuario'),
-								id: idServicio
-							}).then(res=>{
-								console.log(res.data)
-								if(res.data=='noAccess'){
-									sinAcceso.value = true
-								}
-								else{
-									sinAcceso.value=false
-									servicio.value = res.data.cliente
-								}
-							})
+
+						if(modo == 'editar'){
+							if(localStorage.getItem('nivel')==1){
+								sinAcceso.value = false
+								pedirDatos()
+							}else{
+								//pedir quien accede
+								axios.post(servidor + 'Cliente.php',{
+									pedir:'listarID',
+									id: idServicio
+								}).then(res=>{
+									console.log(res.data)
+									if(res.data=='noAccess'){
+										sinAcceso.value = true
+									}
+									else{
+										sinAcceso.value=false
+										servicio.value = res.data.cliente
+									}
+								})
+							}
+
 						}
 					}
 				})
 
+				function crear(){
+					axios.post(servidor + 'Orden.php',{
+						pedir: 'crear',
+						proveedor: proveedor.value, orden: servicio.value, productos: productos.value
+					}).then(res=>{
+						if(res.data.idOrden){
+							Swal.fire({
+								title: "Datos guardados exitósamente",
+								html: "Se registró la órden de servicio <b>#"+res.data.idOrden + "</b><br>Con "+res.data.productos+" productos",
+								icon: "success",
+								allowOutsideClick: false,
+								willClose: () => {
+									window.location = 'detalle-orden.html?modo=editar&idOrden='+res.data.idOrden
+								}
+							})
+						}
+					})
+				}
+
+				function actualizar(){
+					axios.post(servidor + 'Orden.php',{
+						pedir: 'actualizar',
+						proveedor: proveedor.value, orden: servicio.value, productos: productos.value, idOrden: idServicio
+					}).then(res=>{
+						if(res.data.idOrden){
+							Swal.fire({
+								title: "Datos actualizados exitósamente",
+								text: "Actualizaron los datos",
+								icon: "success"
+							})
+						}
+					})
+				}
+
 				function pedirDatos(){
-					axios.post(servidor + 'Cliente.php',{
+					axios.post(servidor + 'Orden.php',{
 						pedir:'listarID',
-						id: idServicio
+						idOrden: idServicio
 					}).then(res=> {
-						servicio.value = res.data.cliente
+						servicio.value = res.data.orden
+						proveedor.value = res.data.proveedor
+						productos.value = res.data.productos
 					})
 
 					axios.post(servidor + 'Usuario.php',{
@@ -424,9 +477,33 @@
 				}
 
 				function agregarFila(){
-					productos.value.push({
-						cantidad: 1, precioUnitario:0
-					})
+					
+					if(!esNuevo.value){
+						axios.post(servidor + 'Orden.php',{
+						pedir:'crearProductoVacio',
+						idOrden: idServicio
+						}).then(res=> {
+							productos.value.push({ id:res.data.idProducto,
+								solped: '', pos: '', codigo: '', descripcion: '', observaciones: '', fecha: '', medida: '', cantidad: 1, precioUnitario:0
+							})
+						})
+					}else{
+						productos.value.push({
+							solped: '', pos: '', codigo: '', descripcion: '', observaciones: '', fecha: '', medida: '', cantidad: 1, precioUnitario:0
+						})
+					}
+				}
+
+				function eliminar(idProducto, descripcion, index){
+					if(confirm(`¿Desea eliminar el producto con la descipción ${descripcion}?`)){
+						axios.post(servidor + 'Orden.php',{
+							pedir: 'eliminarProducto',
+							idProducto : idProducto
+						}).then(res=>{
+							if(res.data == 'ok')
+								productos.value.splice(index, 1)
+						})
+					}
 				}
 
 				function calcularSubTotal(producto){
@@ -449,7 +526,7 @@
 
 				return {
 					servidor, servicio, fechaLatamLargo, fechaLatam, usuarios, sinAcceso, verificarAcceso, nombreCompletoSesion,
-					esNuevo, proveedor, productos, agregarFila, calcularSubTotal
+					esNuevo, proveedor, productos, agregarFila, calcularSubTotal, crear, actualizar, eliminar
 				}
 			}
 		}).mount('#app')
