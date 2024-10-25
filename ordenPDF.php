@@ -3,12 +3,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 // Crear un nuevo objeto PDF
 $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+// tamaño de fuente del documento
 $pdf->SetFont('helvetica', '', 9); 
 
-// Establecer el título del documento
-$pdf->SetTitle('Mi primer PDF con TCPDF');
+$pdf->SetTitle('Órden de servicio');
 
-// Agregar una página
 $pdf->AddPage();
 
 // Escribir algo en el PDF
