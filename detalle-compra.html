@@ -43,6 +43,9 @@
 				<a href="cuentas-por-pagar.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-bag"></i> Cuentas por pagar</span> 
 				</a>
+<a href="ordenes.html" type="button" class="list-group-item list-group-item-action">
+					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-bag"></i> Órdenes de servicio</span>
+				</a>
 				<a href="usuarios.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Usuarios</span> 
 				</a>
@@ -283,7 +286,7 @@
 	
 		const app = createApp({
 			setup() {
-				const servidor = 'http://localhost/documentos-cimal/api/'
+				const servidor = 'https://grupocimalperu.com/intranet/api/'
 				let idServicio = ref(-1)
 				const sinAcceso = ref(true)
 				const usuarios = ref([])

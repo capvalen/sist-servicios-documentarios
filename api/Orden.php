@@ -7,10 +7,47 @@ include 'conectInfocat.php';
 switch ($_POST['pedir']) {
 	case 'crear': crear($db); break;
 	case 'actualizar': actualizar($db); break;
+	case 'actualizarProducto': actualizarProducto($db); break;
+	case 'listar': listar($db); break;
 	case 'listarID': listarID($db); break;
 	case 'crearProductoVacio': crearProductoVacio($db); break;
 	case 'eliminarProducto': eliminarProducto($db); break;
+	case 'eliminarCabecera': eliminarCabecera($db); break;
 	default: break;
+}
+
+function listar($db){
+	$productos = []; $proveedores = [];
+	$fila = [];
+
+	$sqlOrden = $db->prepare("SELECT * FROM orden_cabecera
+	where activo=1 order by id desc;");
+	$sqlOrden->execute();
+	while($rowOrden = $sqlOrden->fetch(PDO::FETCH_ASSOC)){
+		$sqlProveedor = $db->prepare("SELECT p.* 
+		from proveedor p inner join orden_cabecera oc
+		on oc.idProveedor = p.id
+		where oc.id = ?;");
+		$sqlProveedor->execute([ $rowOrden['id'] ]);
+		while($rowProveedor = $sqlProveedor->fetch(PDO::FETCH_ASSOC))
+			$proveedores[] = $rowProveedor;
+
+
+		$sqlDetalle = $db->prepare("SELECT * FROM orden_detalle
+		where idOrden = ? and activo = 1;");
+		$sqlDetalle->execute([ $rowOrden['id'] ]);
+		while($rowDetalle = $sqlDetalle->fetch(PDO::FETCH_ASSOC))
+			$productos [] = $rowDetalle;
+
+		$fila[] = [
+			'orden' => $rowOrden,
+			'proveedor' => $proveedores,
+			'productos'=> $productos
+		];
+		/* while($rowlDetalle = $sqlDetalle->fetch(PDO::FETCH_ASSOC))
+			$productos[] = $rowlDetalle; */
+	}
+	echo json_encode($fila);
 }
 
 function listarID($db){
@@ -132,6 +169,22 @@ function actualizar($db){
 	}
 }
 
+function actualizarProducto($db){
+	$p = $_POST['producto'];
+
+	$sql = $db->prepare("UPDATE `orden_detalle` SET 
+		`solped`=?, `pos`=?, `codigo`=?, `descripcion`=?, `observaciones`=?,`fecha`=?,
+		`cantidad`=?, `medida`=?, `precioUnitario`=round(?,2)
+	 WHERE `id` = ?;");
+	if($sql->execute([
+		$p['solped'], $p['pos'], $p['codigo'], $p['descripcion'], $p['observaciones'], $p['fecha'],
+		$p['cantidad'], $p['medida'], $p['precioUnitario'],
+		$p['id']
+	])){
+		echo 'ok';
+	}else echo 'error';
+}
+
 function crearProductoVacio($db){
 	$sqlProducto = $db->prepare("INSERT INTO orden_detalle (
 		`idOrden`, `solped`, `pos`, `codigo`, `descripcion`, `observaciones`,
@@ -157,4 +210,16 @@ function eliminarProducto($db){
 		}else{
 			echo 'error';
 		}
+}
+
+
+function eliminarCabecera($db){
+	$sql = $db->prepare("UPDATE `orden_cabecera` SET 
+		`activo`=0
+	 WHERE `id` = ?;");
+	if($sql->execute([
+		$_POST['idOrden']
+	])){
+		echo 'ok';
+	}else echo 'error';
 }

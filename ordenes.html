@@ -90,7 +90,7 @@
 							<input type="date" class="form-control" v-model="filtro.fecha">
 						</div>
 						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Correlativo</label>
+							<label for=""><i class="bi bi-funnel"></i> N° Órden</label>
 							<input type="text" class="form-control" placeholder="Correlativo..." autocomplete="off" v-model="filtro.codigo">
 						</div>
 					</div>
@@ -111,52 +111,31 @@
 				<table class="table table-hover" id="miTabla">
 					<thead>
 						<th>N°</th>
-						<th>Correlativo</th>
-						<th>Asunto</th>
-						<th>Estado</th>
-						<th>N° Documento</th>
-						<th>Fecha Doc.</th>
-						<th>Tipo pago</th>
-						<th>Comprobante</th>
-						<th>Fecha</th>
-						<th>Proveedor</th>
-						<th>Total</th>
+						<th>N° Orden</th>
+						<th>RUC</th>
+						<th>Cliente</th>
+						<th>Ciudad Salida</th>
+						<th>Ciudad Destino</th>
+						<th>Fecha Emisión.</th>
+						<th>Contacto</th>
 						<th v-if="verificarAcceso()">Acciones</th>
 					</thead>
 					<tbody>
 						<tr v-for="(tarea, index) in servicios">
-							<td>{{index+1}}</td>
-							<td class="text-uppercase">{{tarea.codigo}}</td>
-							<td class="text-capitalize" style="white-space: nowrap;">
-								<a :href="'detalle-compra.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
-							</td>
-							<td>{{retornarProceso(tarea.proceso)}}</td>
-							<td>{{tarea.numeroDocumento}}</td>
-							<td style="white-space: nowrap;">{{fechaLatam(tarea.fechaDocumento)}}</td>
 							<td>
-								<span v-if="tarea.directo==1">Directo</span>
-								<span v-else>Indirecto</span>
+								<a :href="'detalle-orden.html?modo=editar&idOrden='+tarea.orden.id" class="text-decoration-none">{{index+1}}</a>
 							</td>
-							<td style="white-space: nowrap;">
-								<span v-if="tarea.idComprobante==1">Boleta de venta</span>
-								<span v-if="tarea.idComprobante==2">Factura</span>
-								<span v-if="tarea.idComprobante==3">Recibo por Honorarios</span>
-								<span v-if="tarea.idComprobante==4">Ticket</span>
-								<span v-if="tarea.idComprobante==5">Nota de venta</span>
-								<span v-if="tarea.idComprobante==6">Cotización</span>
-								<span v-if="tarea.idComprobante==7">Ninguno</span>
-								<span v-if="tarea.idComprobante==8">Otros</span>
+							<td class="text-capitalize" style="white-space: nowrap;">
+								<a :href="'detalle-orden.html?modo=editar&idOrden='+tarea.orden.id" class="text-decoration-none">{{tarea.orden.orden}}</a>
 							</td>
-							<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
-							<td class="text-capitalize" style="white-space: nowrap;">{{tarea.razon}}</td>
-							<td style="white-space: nowrap;">
-								<span v-if="tarea.moneda==1">S/ </span>
-								<span v-else>$ </span>
-								<span>{{tarea.total}}</span>
-							</td>
-							<td class="d-flex d-grid gap-2" v-if="verificarAcceso()">
-								<button class="btn btn-sm btn-light text-secondary" @click="prepararEditar(index)" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-pencil-square"></i></button>
-								<button class="btn btn-sm btn-light text-secondary" @click="borrar(index)"><i class="bi bi-trash3"></i></button>
+							<td class="text-uppercase">{{tarea.orden.ruc}}</td>
+							<td class="text-uppercase">{{tarea.orden.ciudad}}</td>
+							<td class="text-uppercase">{{tarea.orden.ciudadDestino}}</td>
+							<td class="text-uppercase">{{tarea.orden.ciudadDestino}}</td>
+							<td style="white-space: nowrap;">{{fechaLatam(tarea.orden.emision)}}</td>
+							<td class="text-uppercase">{{tarea.orden.contacto}}</td>
+							<td>
+								<button class="btn btn-outline-danger btn-sm" @click="eliminar(index)" title="Eliminar órden"><i class="bi bi-eraser"></i></button>
 							</td>
 						</tr>
 						<tr v-if="servicios.length==0">
@@ -195,13 +174,32 @@
 				})
 
 				function pedirDatos(){
-					axios.post(servidor + 'CompraVenta.php',{
-						pedir:'listarMisServicios',
-						idUsuario: localStorage.getItem('idUsuario'),
-						categoria: 1 //compra
-					}).then(res=> {
-						servicios.value = res.data
-					})
+					axios.post(servidor + 'Orden.php',{
+						pedir:'listar',
+					}).then(res=> servicios.value = res.data
+					)
+				}
+
+				function eliminar(index){
+					if( confirm(`¿Desea eliminar la órden seleccionada?`) ){
+						axios.post(servidor + 'Orden.php',{
+							pedir:'eliminarCabecera',
+							idOrden: servicios.value[index].orden.id
+						}).then(res=> {
+							pedirDatos()
+							if(res.data=='ok'){
+								Swal.fire({
+									title: 'Registro eliminado!',
+									icon: 'success'
+								})
+							}else{
+								Swal.fire({
+									title: 'Hubo un error al eliminar',
+									icon: 'error'
+								})
+							}
+						})
+					}
 				}
 				
 				function crearServicio(){
@@ -226,7 +224,6 @@
 								icon: 'error'
 							})
 						}
-
 					})
 				}
 
@@ -365,7 +362,7 @@
 				
 				
 				return {
-					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal, retornarProceso, exportarExcel
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal, retornarProceso, exportarExcel, eliminar
 				}
 			}
 		}).mount('#app')

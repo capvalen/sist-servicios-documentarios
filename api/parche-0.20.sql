@@ -62,3 +62,4 @@ CREATE TABLE orden_detalle (
 ALTER TABLE `proveedor` CHANGE `registro` `registro` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `proveedor` ADD `activo` INT NULL DEFAULT '1' AFTER `registro`;
 ALTER TABLE `orden_detalle` ADD `activo` INT NULL DEFAULT '1' AFTER `precioUnitario`;
+ALTER TABLE `orden_cabecera` ADD `activo` INT NULL DEFAULT '1' AFTER `registro`;
