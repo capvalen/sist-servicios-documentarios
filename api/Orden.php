@@ -8,6 +8,7 @@ switch ($_POST['pedir']) {
 	case 'crear': crear($db); break;
 	case 'actualizar': actualizar($db); break;
 	case 'actualizarProducto': actualizarProducto($db); break;
+	case 'filtrar': filtrar($db); break;
 	case 'listar': listar($db); break;
 	case 'listarID': listarID($db); break;
 	case 'crearProductoVacio': crearProductoVacio($db); break;
@@ -27,8 +28,8 @@ function listar($db){
 		$sqlProveedor = $db->prepare("SELECT p.* 
 		from proveedor p inner join orden_cabecera oc
 		on oc.idProveedor = p.id
-		where oc.id = ?;");
-		$sqlProveedor->execute([ $rowOrden['id'] ]);
+		where p.id = ?;");
+		$sqlProveedor->execute([ $rowOrden['idProveedor'] ]);
 		while($rowProveedor = $sqlProveedor->fetch(PDO::FETCH_ASSOC))
 			$proveedores[] = $rowProveedor;
 
@@ -41,11 +42,12 @@ function listar($db){
 
 		$fila[] = [
 			'orden' => $rowOrden,
-			'proveedor' => $proveedores,
+			'proveedor' => $proveedores[0] ?? [],
 			'productos'=> $productos
 		];
+		$proveedores = []; $productos=[];
 		/* while($rowlDetalle = $sqlDetalle->fetch(PDO::FETCH_ASSOC))
-			$productos[] = $rowlDetalle; */
+		$productos[] = $rowlDetalle; */
 	}
 	echo json_encode($fila);
 }
@@ -222,4 +224,48 @@ function eliminarCabecera($db){
 	])){
 		echo 'ok';
 	}else echo 'error';
+}
+
+function filtrar($db){
+	$productos = []; $proveedores = [];
+	$fila = [];
+	
+	$filtro = "";
+
+	if($_POST['filtro']['codigo']<>null) $filtro .=" and oc.orden like '{$_POST['filtro']['codigo']}'";
+	if($_POST['filtro']['fecha']<>null) $filtro .=" and p.emision like '{$_POST['filtro']['fecha']}'";
+	if($_POST['filtro']['texto']<>null) $filtro .=" and (p.ruc like '{$_POST['filtro']['texto']}' or p.razon like '%{$_POST['filtro']['texto']}%' )";
+
+	$sqlProveedor = $db->prepare("SELECT p.* from proveedor p
+	inner join orden_cabecera oc on p.id = oc.idProveedor
+	where 1 {$filtro};");
+	$sqlProveedor->execute();
+	while($rowProveedor = $sqlProveedor->fetch(PDO::FETCH_ASSOC)){
+		$proveedores[] = $rowProveedor;
+
+		$sqlOrden = $db->prepare("SELECT * FROM orden_cabecera
+		where activo=1 and idProveedor = ?;");
+		$sqlOrden->execute([ $rowProveedor['id'] ]);
+
+		while($rowOrden = $sqlOrden->fetch(PDO::FETCH_ASSOC))
+			$orden[] = $rowOrden;
+	
+		$sqlDetalle = $db->prepare("SELECT * FROM orden_detalle
+		where idOrden = ? and activo = 1;");
+		$sqlDetalle->execute([ $orden[0]['id'] ]);
+		while($rowDetalle = $sqlDetalle->fetch(PDO::FETCH_ASSOC))
+			$productos [] = $rowDetalle;
+
+		$fila[] = [
+			'orden' => $orden[0] ?? [],
+			'proveedor' => $proveedores[0] ?? [],
+			'productos'=> $productos
+		];
+		$proveedores = []; $productos=[];
+		/* while($rowlDetalle = $sqlDetalle->fetch(PDO::FETCH_ASSOC))
+		$productos[] = $rowlDetalle; */
+	
+
+	}
+	echo json_encode($fila);
 }

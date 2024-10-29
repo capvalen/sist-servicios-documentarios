@@ -69,29 +69,16 @@
 				<div class="card-body">
 					<div class="row">
 						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Estado</label>
-							<select class="form-select" id="sltEstado" v-model="filtro.estado">
-								<option value="-1">Todos</option>
-								<option value="6">Pendiente</option>
-								<option value="7">Procesado</option>
-								<option value="5">Anulado</option>
-							</select>
+							<label for=""><i class="bi bi-funnel"></i> N° Órden</label>
+							<input type="text" class="form-control" placeholder="Correlativo..." autocomplete="off" v-model="filtro.codigo">
 						</div>
 						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Tipo de pago</label>
-							<select class="form-select" id="sltDirecto" v-model="filtro.directo">
-								<option value="-1">Todos</option>
-								<option value="1">Directo</option>
-								<option value="2">Indirecto</option>
-							</select>
+							<label for=""><i class="bi bi-funnel"></i> Ruc o Razón social</label>
+							<input type="text" class="form-control" placeholder="Correlativo..." autocomplete="off" v-model="filtro.texto">
 						</div>
 						<div class="col">
 							<label for=""><i class="bi bi-funnel"></i> Fecha</label>
 							<input type="date" class="form-control" v-model="filtro.fecha">
-						</div>
-						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> N° Órden</label>
-							<input type="text" class="form-control" placeholder="Correlativo..." autocomplete="off" v-model="filtro.codigo">
 						</div>
 					</div>
 				</div>
@@ -113,7 +100,7 @@
 						<th>N°</th>
 						<th>N° Orden</th>
 						<th>RUC</th>
-						<th>Cliente</th>
+						<th>Proveedor</th>
 						<th>Ciudad Salida</th>
 						<th>Ciudad Destino</th>
 						<th>Fecha Emisión.</th>
@@ -128,11 +115,11 @@
 							<td class="text-capitalize" style="white-space: nowrap;">
 								<a :href="'detalle-orden.html?modo=editar&idOrden='+tarea.orden.id" class="text-decoration-none">{{tarea.orden.orden}}</a>
 							</td>
-							<td class="text-uppercase">{{tarea.orden.ruc}}</td>
+							<td class="text-uppercase">{{tarea.proveedor.ruc}}</td>
+							<td class="text-uppercase">{{tarea.proveedor.razon}}</td>
 							<td class="text-uppercase">{{tarea.orden.ciudad}}</td>
 							<td class="text-uppercase">{{tarea.orden.ciudadDestino}}</td>
-							<td class="text-uppercase">{{tarea.orden.ciudadDestino}}</td>
-							<td style="white-space: nowrap;">{{fechaLatam(tarea.orden.emision)}}</td>
+							<td style="white-space: nowrap;">{{fechaLatam(tarea.proveedor.emision)}}</td>
 							<td class="text-uppercase">{{tarea.orden.contacto}}</td>
 							<td>
 								<button class="btn btn-outline-danger btn-sm" @click="eliminar(index)" title="Eliminar órden"><i class="bi bi-eraser"></i></button>
@@ -161,7 +148,7 @@
 				})
 				const servicios = ref([])
 				const filtro = ref({
-					estado:-1, fecha:null, colaborador:-1, codigo:'', directo:-1
+					fecha:null, codigo:'', texto:''
 				})
 				const seEdita = ref(false)
 				let indexGlobal=-1
@@ -299,11 +286,9 @@
 				}
 
 				function filtrar(){
-					axios.post(servidor + 'CompraVenta.php',{
+					axios.post(servidor + 'Orden.php',{
 						pedir: 'filtrar',
-						idUsuario: localStorage.getItem('idUsuario'),
-						filtro: filtro.value,
-						categoria: 1
+						filtro: filtro.value
 					}).then(res=> servicios.value = res.data )
 				}
 
@@ -317,7 +302,8 @@
 				}
 
 				function fechaLatam(fecha){
-					if(fecha) return moment(fecha).format('DD/MM/YYYY')
+					if(fecha)
+						if(fecha!='0000-00-00') return moment(fecha).format('DD/MM/YYYY')
 				}
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 
