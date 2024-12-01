@@ -16,6 +16,7 @@ switch ($_POST['pedir']) {
 	case 'addUser': addUser($db); break;
 	case 'borrarLector': borrarLector($db); break;
 	case 'eliminarRespuesta': eliminarRespuesta($db); break;
+	case 'listarProveedorSinRepetir': listarProveedorSinRepetir($db); break;
 	case 'eliminar': eliminar($db); break;
 	default: break;
 }
@@ -98,6 +99,7 @@ function filtrar($db){
 
 	$filtro = "";
 
+	if($_POST['filtro']['ruc']<>-1) $filtro =" and s.ruc = ".$_POST['filtro']['ruc'] ;
 	if($_POST['filtro']['estado']<>-1) $filtro =" and s.proceso = ".$_POST['filtro']['estado'] ;
 	if($_POST['filtro']['directo']<>-1) $filtro =" and s.directo = ".$_POST['filtro']['directo'] ;
 	if($_POST['filtro']['fecha']<>null) $filtro .=" and s.registro like '{$_POST['filtro']['fecha']} %'";
@@ -245,4 +247,21 @@ function eliminar($db){
 	}else{
 		echo 'error';
 	}
+}
+
+function listarProveedorSinRepetir($db){
+	$filas = [];
+	$sql=$db->prepare("SELECT trim(ruc) as ruc, trim(razon) as razon FROM `compra_venta`
+	where activo = 1 and ruc <>'' and razon <>'' and categoria = ?
+	group by trim(ruc)
+	order by razon asc;");
+	/*SELECT trim(ruc) as ruc, trim(razon) as razon FROM `proveedor`
+	where activo = 1 and ruc <>'' and razon <>''
+	group by trim(ruc), trim(razon)
+	order by razon asc;*/
+	$sql->execute([ $_POST['categoria'] ]);
+	while($row = $sql->fetch(PDO::FETCH_ASSOC))
+		$filas [] = $row;
+	
+	echo json_encode($filas);
 }

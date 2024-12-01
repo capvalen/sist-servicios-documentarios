@@ -98,6 +98,7 @@ function filtrar($db){
 
 	$filtro = "";
 
+	if($_POST['filtro']['ruc']<>-1) $filtro =" and s.ruc = ".$_POST['filtro']['ruc'] ;
 	if($_POST['filtro']['estado']<>-1) $filtro =" and s.proceso = ".$_POST['filtro']['estado'] ;
 	if($_POST['filtro']['directo']<>-1) $filtro =" and s.directo = ".$_POST['filtro']['directo'] ;
 	if($_POST['filtro']['fecha']<>null) $filtro .=" and s.registro like '{$_POST['filtro']['fecha']} %'";

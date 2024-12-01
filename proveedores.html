@@ -30,11 +30,10 @@
 				<a href="clientes.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Clientes</span> 
 				</a>
-				<a href="proveedores.html" type="button" class="list-group-item list-group-item-action">
+				<a href="proveedores.html" type="button" class="list-group-item list-group-item-action active">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Proveedores</span> 
 				</a>
-				
-				<a href="compras.html" type="button" class="list-group-item list-group-item-action active">
+				<a href="compras.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-piggy-bank"></i> Compras</span> 
 				</a>
 				<a href="ventas.html" type="button" class="list-group-item list-group-item-action">
@@ -68,103 +67,44 @@
 			</div>
 			<hr class="opacity-25 d-print-none">
 
-			<h1 class="text-start">Sección Compras</h1>
+			<h1 class="text-start">Sección Proveedores</h1>
 			<div class="card d-print-none">
 				<div class="card-body">
 					<div class="row">
 						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Proveedores</label>
-							<select class="form-select" id="sltEstado" v-model="filtro.ruc">
-								<option value="-1">Todos</option>
-								<option v-for="proveedor in proveedores" :value="proveedor.ruc">{{proveedor.razon}}</option>
-							</select>
-						</div>
-						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Estado</label>
-							<select class="form-select" id="sltEstado" v-model="filtro.estado">
-								<option value="-1">Todos</option>
-								<option value="6">Pendiente</option>
-								<option value="7">Procesado</option>
-								<option value="5">Anulado</option>
-							</select>
-						</div>
-						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Tipo de pago</label>
-							<select class="form-select" id="sltDirecto" v-model="filtro.directo">
-								<option value="-1">Todos</option>
-								<option value="1">Directo</option>
-								<option value="2">Indirecto</option>
-							</select>
-						</div>
-						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Fecha</label>
-							<input type="date" class="form-control" v-model="filtro.fecha">
-						</div>
-						<div class="col">
-							<label for=""><i class="bi bi-funnel"></i> Correlativo</label>
-							<input type="text" class="form-control" placeholder="Correlativo..." autocomplete="off" v-model="filtro.codigo">
+							<label for=""><i class="bi bi-funnel"></i> Ruc - Razón Social - Celular</label>
+							<input type="text" class="form-control" placeholder="	" autocomplete="off" v-model="filtro.codigo">
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="d-flex justify-content-between my-3 d-grid gap-2 d-print-none">
-				<div>
-					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false" v-if="verificarAcceso()"><i class="bi bi-database"></i> Crear nueva compra</button>
+			<div class="d-flex justify-content-end my-3 d-grid gap-2 d-print-none">
+				<div class="d-none">
+					<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevo" @click="seEdita=false" v-if="verificarAcceso()"><i class="bi bi-database"></i> Crear nuevo proveedor</button>
 				</div>
 				<div class="d-flex d-grid gap-2">
-					<button class="btn btn-outline-success" @click="exportarExcel()"><i class="bi bi-file-earmark-excel"></i> Exportar Excel</button>
 					<button class="btn btn-outline-secondary" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar filtro</button>
 					<button class="btn btn-outline-secondary" @click="filtrar()"><i class="bi bi-funnel"></i> Aplicar filtro</button>
 				</div>
 			</div>
-			<p class="d-print-none">A continuación se muestran todas las compras</p>
-			<div class="">
-				<table class="table table-hover" id="miTabla">
+			<p class="d-print-none">A continuación se muestran todos los proveedores</p>
+			<div class="table-responsive">
+				<table class="table table-hover">
 					<thead>
 						<th>N°</th>
-						<th>Correlativo</th>
-						<th>Asunto</th>
-						<th>Estado</th>
-						<th>N° Documento</th>
-						<th>Fecha Doc.</th>
-						<th>Tipo pago</th>
-						<th>Comprobante</th>
-						<th>Fecha</th>
-						<th>Proveedor</th>
-						<th>Total</th>
+						<th>R.U.C.</th>
+						<th>Razón Social</th>
+						<th>Cod. Órden de Servicio</th>
 						<th class="d-print-none" v-if="verificarAcceso()">Acciones</th>
 					</thead>
 					<tbody>
 						<tr v-for="(tarea, index) in servicios">
 							<td>{{index+1}}</td>
-							<td class="text-uppercase">{{tarea.codigo}}</td>
-							<td class="text-capitalize" style="white-space: nowrap;">
-								<a :href="'detalle-compra.html?id='+tarea.id" class="text-decoration-none">{{tarea.titulo}}</a>
+							<td class="text-uppercase">{{tarea.ruc}}</td>
+							<td class="text-capitalize">
+								<a :href="'detalle-proveedor.html?id='+tarea.id" class="text-decoration-none">{{tarea.razon}}</a>
 							</td>
-							<td>{{retornarProceso(tarea.proceso)}}</td>
-							<td>{{tarea.numeroDocumento}}</td>
-							<td style="white-space: nowrap;">{{fechaLatam(tarea.fechaDocumento)}}</td>
-							<td>
-								<span v-if="tarea.directo==1">Directo</span>
-								<span v-else>Indirecto</span>
-							</td>
-							<td style="white-space: nowrap;">
-								<span v-if="tarea.idComprobante==1">Boleta de venta</span>
-								<span v-if="tarea.idComprobante==2">Factura</span>
-								<span v-if="tarea.idComprobante==3">Recibo por Honorarios</span>
-								<span v-if="tarea.idComprobante==4">Ticket</span>
-								<span v-if="tarea.idComprobante==5">Nota de venta</span>
-								<span v-if="tarea.idComprobante==6">Cotización</span>
-								<span v-if="tarea.idComprobante==7">Ninguno</span>
-								<span v-if="tarea.idComprobante==8">Otros</span>
-							</td>
-							<td class="text-capitalize">{{fechaLatam(tarea.registro)}}</td>
-							<td class="text-capitalize" style="white-space: nowrap;">{{tarea.razon}}</td>
-							<td style="white-space: nowrap;">
-								<span v-if="tarea.moneda==1">S/ </span>
-								<span v-else>$ </span>
-								<span>{{tarea.total}}</span>
-							</td>
+							<td><a class="text-decoration-none" :href="'detalle-orden.html?modo=editar&idOrden='+tarea.idOrden">{{tarea.codigo}}</a></td>
 							<td class="d-flex d-grid gap-2 d-print-none" v-if="verificarAcceso()">
 								<button class="btn btn-sm btn-light text-secondary" @click="prepararEditar(index)" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-pencil-square"></i></button>
 								<button class="btn btn-sm btn-light text-secondary" @click="borrar(index)"><i class="bi bi-trash3"></i></button>
@@ -184,56 +124,24 @@
 					<div class="modal-content">
 						<div class="modal-header border-0">
 							<h5 class="modal-title" id="miModalLabel">
-								<span v-if="!seEdita">Nuevo registro</span>
-								<span v-else>Editar pago o detracción</span>
+								<span v-if="!seEdita">Nuevo proveedor</span>
+								<span v-else>Editar proveedor</span>
 							</h5>
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body">
-							<p>Titulo de la compra</p>
-							<input type="text" class="form-control mb-3" autocomplete="off" v-model="servicio.titulo">
-							<p>Serie-Correlativo</p>
-							<input type="text" class="form-control" autocomplete="off" v-model="servicio.codigo">
-							<p class="mt-3">Tipo de pago</p>
-							<select class="form-select" id="sltTipoPago" v-model="servicio.directo">
-								<option value="1">Directo</option>
-								<option value="2">Indirecto</option>
-							</select>
-							<p class="mt-3">Tipo de comprobante</p>
-							<select class="form-select" id="sltTipoPago" v-model="servicio.idComprobante">
-								<option value="1">Boleta de venta</option>
-								<option value="2">Factura</option>
-								<option value="3">Recibo por Honorarios</option>
-								<option value="4">Ticket</option>
-								<option value="5">Nota de venta</option>
-								<option value="6">Cotización</option>
-								<option value="7">Ninguno</option>
-								<option value="8">Otros</option>
-							</select>
-							<p class="mt-3">N° Documento</p>
-							<input type="text" class="form-control" autocomplete="off" v-model="servicio.numeroDocumento">
-							<p class="mt-3">Fecha Documento</p>
-							<input type="date" class="form-control" v-model="servicio.fechaDocumento">
 							<p class="mt-3">R.U.C.</p>
 							<input type="text" class="form-control" autocomplete="off" v-model="servicio.ruc">
 							<p class="mt-3">Razón social</p>
 							<input type="text" class="form-control" autocomplete="off" v-model="servicio.razon">
-							<p class="mt-3">Moneda</p>
-							<select class="form-select" id="sltMoneda" v-model="servicio.moneda">
-								<option value="1">Soles</option>
-								<option value="2">Dólares</option>
-							</select>
-							<p class="mt-3">Monto base</p>
-							<input type="number" class="form-control" autocomplete="off" v-model="servicio.base" @keyup="calcularTotal()">
-							<p class="mt-3">Monto IGV</p>
-							<input type="number" class="form-control" autocomplete="off" v-model="servicio.igv" @keyup="calcularTotal()">
-							<p class="mt-3">Total</p>
-							<input type="text" class="form-control" autocomplete="off" v-model="servicio.total">
-
+							<p class="mt-3">Dirección</p>	
+							<input type="text" class="form-control" autocomplete="off" v-model="servicio.direccion">
+							<p class="mt-3">Celular</p>
+							<input type="text" class="form-control" autocomplete="off" v-model="servicio.celular">
 						</div>
 						<div class="modal-footer border-0">
 							<button v-if="!seEdita" type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="crearServicio()"><i class="bi bi-database"></i> Crear nuevo</button>
-							<button v-else type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @click="actualizarServicio()"><i class="bi bi-pencil-square"></i> Actualizar pago</button>
+							<button v-else type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @click="actualizarServicio()"><i class="bi bi-pencil-square"></i> Actualizar proveedor</button>
 						</div>
 					</div>
 				</div>
@@ -251,12 +159,11 @@
 			setup() {
 				const servidor = 'https://grupocimalperu.com/intranet/api/'
 				const servicio = ref({
-					codigo:'', titulo:'', id:-1, directo:1, idComprobante:1, ruc: '',razon: '', base: 0, igv: 0, total: 0, moneda:1, numeroDocumento:'', fechaDocumento:''
+					ruc: '',razon: '', direccion: '', celular: '', codigo:''
 				})
-				const proveedores = ref([])
 				const servicios = ref([])
 				const filtro = ref({
-					estado:-1, fecha:null, colaborador:-1, codigo:'', directo:-1, ruc:-1
+					estado:-1, fecha:null, colaborador:-1, codigo:'', directo:-1
 				})
 				const seEdita = ref(false)
 				let indexGlobal=-1
@@ -269,33 +176,28 @@
 				})
 
 				function pedirDatos(){
-					axios.post(servidor + 'CompraVenta.php',{
-						pedir:'listarMisServicios',
+					axios.post(servidor + 'Proveedor.php',{
+						pedir:'listar',
 						idUsuario: localStorage.getItem('idUsuario'),
-						categoria: 1 //compra
+						nivel: localStorage.getItem('nivel'),
+						categoria: 2 //venta
 					}).then(res=> {
 						servicios.value = res.data
 					})
-					axios.post(servidor + 'CompraVenta.php',{
-						pedir: 'listarProveedorSinRepetir',
-						categoria: 1 //compra
-					}).then(serv=> proveedores.value = serv.data )
 				}
 				
 				function crearServicio(){
-					servicio.value.base = servicio.value.base ?? 0
-					servicio.value.igv = servicio.value.igv ?? 0
-					servicio.value.total = servicio.value.total ?? 0
 					
-					axios.post(servidor + 'CompraVenta.php',{
+					axios.post(servidor + 'Proveedor.php',{
 						pedir:'crear',
-						servicio : servicio.value,
-						idUsuario: localStorage.getItem('idUsuario'), categoria:1
+						registro : servicio.value,
+						idUsuario: localStorage.getItem('idUsuario'),
+						nivel: localStorage.getItem('nivel')
 					}).then(res=> {
 						pedirDatos()
 						if(res.data.id){
 							Swal.fire({
-								title: 'Pago creado!',
+								title: 'Proveedor creado!',
 								icon: 'success'
 							})
 						}else{
@@ -310,7 +212,7 @@
 
 				function limpiar(){
 					filtro.value = {
-						estado:-1, fecha:null, colaborador:-1, codigo:'', directo:-1, categoria: 1
+						estado:-1, fecha:null, colaborador:-1, codigo:'', directo:-1,  categoria: 2
 					}
 					filtrar()
 				}
@@ -321,9 +223,10 @@
 				}
 
 				function actualizarServicio(){
-					axios.post(servidor + 'CompraVenta.php',{
-						pedir: 'actualizarCabecera',
-						servicio : servicio.value
+					axios.post(servidor + 'Proveedor.php',{
+						pedir: 'actualizar',
+						servicio : servicio.value,
+						nivel: localStorage.getItem('nivel')
 					}).then(res=>{
 						if(res.data == 'ok'){
 							Swal.fire({
@@ -353,9 +256,10 @@
 						}*/
 					});
 					if (text) { //se aprueba
-						axios.post(servidor + 'CompraVenta.php',{
+						axios.post(servidor + 'Proveedor.php',{
 							pedir:'eliminar',
 							id : servicios.value[indexGlobal].id,
+							nivel: localStorage.getItem('nivel')
 						}).then(res =>{
 							if(res.data){
 								Swal.fire({
@@ -374,17 +278,16 @@
 				}
 
 				function verificarAcceso(){
-					//if(localStorage.getItem('nivel')=='1') return true
-					if( ['-1','1'].includes(localStorage.getItem('nivel')) ) return true
+					if(localStorage.getItem('nivel')=='1') return true
 					else return false
 				}
 
 				function filtrar(){
-					axios.post(servidor + 'CompraVenta.php',{
+					axios.post(servidor + 'Proveedor.php',{
 						pedir: 'filtrar',
 						idUsuario: localStorage.getItem('idUsuario'),
-						filtro: filtro.value,
-						categoria: 1
+						filtro: filtro.value, categoria: 2,
+						nivel: localStorage.getItem('nivel')
 					}).then(res=> servicios.value = res.data )
 				}
 
@@ -401,54 +304,12 @@
 					if(fecha) return moment(fecha).format('DD/MM/YYYY')
 				}
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
-
-				function retornarProceso(proceso){
-					let lista = ['Asignado', 'En proceso', 'Observado', 'Culminado', 'Anulado', 'Pendiente', 'Procesado']
-					return lista[proceso-1]
-				}
-
-				function exportarExcel() {
-					var tabla = document.getElementById('miTabla');
-					var filas = tabla.rows;
-
-					var contenidoExcel = `
-							<html xmlns:o="urn:schemas-microsoft-com:office:office"
-							xmlns:x="urn:schemas-microsoft-com:office:excel"
-							xmlns="http://www.w3.org/TR/REC-html40">
-							<head><meta charset="UTF-8"></head><body><table>`;
-
-					for (var i = 0; i < filas.length; i++) {
-							contenidoExcel += "<tr>";
-							var celdas = filas[i].cells;
-							for (var j = 0; j < celdas.length; j++) {
-									contenidoExcel += "<td>" + celdas[j].innerText + "</td>";
-							}
-							contenidoExcel += "</tr>";
-					}
-
-					contenidoExcel += `</table></body></html>`;
-
-					// Crear un blob con el contenido de Excel
-					var blob = new Blob([contenidoExcel], { type: 'application/vnd.ms-excel' });
-
-					// Crear un enlace para descargar el archivo
-					var link = document.createElement('a');
-					link.href = URL.createObjectURL(blob);
-					let fecha = moment().format('DD-MM-YYYY[-]hh.mm')
-					link.download = `Compras_${fecha}.xls`;
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-        }
-				
 				
 				return {
-					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal, retornarProceso, exportarExcel,
-					proveedores
+					servidor, servicio, servicios, crearServicio, pedirDatos, fechaLatam, borrar, seEdita, prepararEditar, actualizarServicio, filtro, filtrar, limpiar, verificarAcceso, nombreCompletoSesion, calcularTotal
 				}
 			}
-		})
-		app.mount('#app')
+		}).mount('#app')
 	</script>
 </body>
 </html>

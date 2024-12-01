@@ -10,8 +10,9 @@ switch ($_POST['pedir']) {
 	case 'actualizar': actualizar($db); break;
 	case 'listar': listar($db); break;
 	case 'listarID': listarID($db); break;
-	case 'filtrar': filtrar($db); break;
 	case 'addUser': addUser($db); break;
+	case 'filtrar': filtrar($db); break;
+	case 'eliminar': eliminar($db); break;
 	case 'eliminarRespuesta': eliminarRespuesta($db); break;
 	case 'listarSinRepetir': listarSinRepetir($db); break;
 	default: break;
@@ -35,7 +36,10 @@ function crear($db){
 
 function listar($db){	
 	$filas = [];
-	$sql=$db->prepare("SELECT * FROM `clientes` order by id desc;");
+	$sql=$db->prepare("SELECT o.orden as codigo, o.id as idOrden, p.* FROM `proveedor` p
+	inner join orden_cabecera o on o.idProveedor = p.id
+	where p.activo = 1
+	order by razon asc;");
 	$sql->execute();
 	while($row = $sql->fetch(PDO::FETCH_ASSOC))
 		$filas [] = $row;
@@ -83,29 +87,15 @@ function listarID($db){
 
 function filtrar($db){
 	$filas = [];
-	
-	$sqlUsuario = $db->prepare("SELECT nivel from usuarios where idUsuario = ?; ");
-	$sqlUsuario->execute([ $_POST['idUsuario'] ]);
-	$rowUsuario = $sqlUsuario->fetch(PDO::FETCH_ASSOC);
-
 	$filtro = "";
 
-	if($_POST['filtro']['codigo']<>null) $filtro .=" and (c.ruc = '{$_POST['filtro']['codigo']}' or c.razon like '%{$_POST['filtro']['codigo']}%' or c.celular like '{$_POST['filtro']['codigo']}' )";
+	if($_POST['filtro']['codigo']<>null) $filtro .=" and (p.ruc = '{$_POST['filtro']['codigo']}' or p.razon like '%{$_POST['filtro']['codigo']}%' or p.celular like '{$_POST['filtro']['codigo']}' )";
 
-	if($rowUsuario['nivel'] == 0 ){
-		$sql=$db->prepare("SELECT c.* FROM `clientes` c
-		inner join clientes_empleados ce on ce.idCliente = c.id
-		inner join usuarios u on u.idUsuario = ce.idUsuario
-		where c.activo = 1 and se.idUsuario = ? {$filtro}
-		order by id desc;");
-		$sql->execute([ $_POST['idUsuario'] ]);
-	}
-	if($rowUsuario['nivel'] == 1 ){
-		$sql=$db->prepare("SELECT c.* FROM `clientes` c
-		where c.activo = 1 {$filtro}
-		order by id desc;");
-		$sql->execute();
-	}
+	$sql=$db->prepare("SELECT o.orden as codigo, o.id as idOrden, p.* FROM `proveedor` p
+	inner join orden_cabecera o on o.idProveedor = p.id
+	where p.activo = 1 {$filtro}
+	order by razon asc;");
+	$sql->execute();
 	
 	while($row = $sql->fetch(PDO::FETCH_ASSOC))
 		$filas [] = $row;
@@ -115,12 +105,12 @@ function filtrar($db){
 
 function actualizar($db){
 	$u = $_POST['servicio'];
-	$sql = $db->prepare("UPDATE `clientes` SET
-	`ruc`=?,`razon`=?,`direccion`=?,
-	`celular`=?,`codigo` = ? WHERE id = ?; ");
+	$sql = $db->prepare("UPDATE `proveedor` SET
+	`ruc`=?,`razon`=?,`direccionDestino`=?,
+	`celular`=? WHERE id = ?; ");
 	if($sql->execute([
 		$u['ruc'], $u['razon'], $u['direccion'],
-		$u['celular'], $u['codigo'], $u['id']
+		$u['celular'], $u['id']
   ])) echo 'ok';
 	else echo 'error';
 }
@@ -136,9 +126,10 @@ function addUser($db){
 	}
 }
 
+
 function eliminar($db){
-	if($_POST['nivel']==1){
-		$sql = $db->prepare("UPDATE `clientes` SET
+	if($_POST['nivel']==1){	
+		$sql = $db->prepare("UPDATE `proveedor` SET
 		activo = 0 WHERE id = ?; ");
 		if($sql->execute([
 			$_POST['id']
@@ -146,6 +137,7 @@ function eliminar($db){
 		else echo 'error';
 	}else echo 'sin permiso';
 }
+
 
 function eliminarRespuesta($db){
 	$sql = $db->prepare("UPDATE `documentos` SET `activo` = '0' WHERE id = ?;");

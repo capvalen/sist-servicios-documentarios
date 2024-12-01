@@ -17,4 +17,7 @@ try {
 	echo "Problema con la conexion: ".$e->getMessage();
 }
 
+//https://grupocimalperu.com/intranet/api/
+//http://sist-documentario.test/api/
+//
 ?>
