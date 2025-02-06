@@ -28,13 +28,12 @@
 				<a href="pagos.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-wallet2"></i> Pagos y detracciones</span> 
 				</a>
-				<a href="clientes.html" type="button" class="list-group-item list-group-item-action active">
+				<a href="clientes.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Clientes</span> 
 				</a>
-				<a href="proveedores.html" type="button" class="list-group-item list-group-item-action">
+				<a href="proveedores.html" type="button" class="list-group-item list-group-item-action active">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-people"></i> Proveedores</span> 
-				</a>
-				
+				</a>				
 				<a href="compras.html" type="button" class="list-group-item list-group-item-action">
 					<i class="bi bi-caret-right-fill"></i> <span class="icono"><i class="bi bi-piggy-bank"></i> Compras</span> 
 				</a>
@@ -259,7 +258,7 @@
 		const app = createApp({
 			setup() {
 				const servidor = 'https://grupocimalperu.com/intranet/api/'
-				let idServicio = ref(-1)
+				let ruc = ref(-1)
 				const sinAcceso = ref(true)
 				const usuarios = ref([])
 				const asignarIdUsuario = ref(-1)
@@ -275,7 +274,7 @@
 					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
 					else{
 						const url = new URL(window.location.href);
-						idServicio = url.searchParams.get('id');
+						ruc.value = url.searchParams.get('ruc');
 
 						if(localStorage.getItem('nivel')==1){
 							sinAcceso.value = false
@@ -284,10 +283,10 @@
 						}else{
 							adjunto.value.tipo = 2
 							//pedir quien accede
-							axios.post(servidor + 'Cliente.php',{
-								pedir:'listarID',
+							axios.post(servidor + 'Proveedor.php',{
+								pedir:'listarRUC',
 								idUsuario: localStorage.getItem('idUsuario'),
-								id: idServicio
+								ruc: ruc.value
 							}).then(res=>{
 								console.log(res.data)
 								if(res.data=='noAccess'){
@@ -306,9 +305,9 @@
 				})
 
 				function pedirDatos(){
-					axios.post(servidor + 'Cliente.php',{
-						pedir:'listarID',
-						id: idServicio
+					axios.post(servidor + 'Proveedor.php',{
+						pedir:'listarRUC',
+						ruc: ruc.value
 					}).then(res=> {
 						servicio.value = res.data.cliente
 						lectores.value = res.data.usuarios
@@ -494,7 +493,7 @@
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 
 				return {
-					servidor, servicio, fechaLatamLargo, fechaLatam, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso, adjunto, enviarDocumento, documentos, retirarDocumento, respuestas, borrarRespuesta, nombreCompletoSesion
+					servidor, servicio, fechaLatamLargo, fechaLatam, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso, adjunto, enviarDocumento, documentos, retirarDocumento, respuestas, borrarRespuesta, nombreCompletoSesion, ruc
 				}
 			}
 		}).mount('#app')

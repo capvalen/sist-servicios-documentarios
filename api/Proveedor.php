@@ -9,12 +9,14 @@ switch ($_POST['pedir']) {
 	case 'crear': crear($db); break;
 	case 'actualizar': actualizar($db); break;
 	case 'listar': listar($db); break;
+	case 'listarSinDuplicado': listarSinDuplicado($db); break;
 	case 'listarID': listarID($db); break;
 	case 'addUser': addUser($db); break;
 	case 'filtrar': filtrar($db); break;
 	case 'eliminar': eliminar($db); break;
 	case 'eliminarRespuesta': eliminarRespuesta($db); break;
 	case 'listarSinRepetir': listarSinRepetir($db); break;
+	case 'listarRUC': listarRUC($db); break;
 	default: break;
 }
 
@@ -39,6 +41,19 @@ function listar($db){
 	$sql=$db->prepare("SELECT o.orden as codigo, o.id as idOrden, p.* FROM `proveedor` p
 	inner join orden_cabecera o on o.idProveedor = p.id
 	where p.activo = 1
+	order by razon asc;");
+	$sql->execute();
+	while($row = $sql->fetch(PDO::FETCH_ASSOC))
+		$filas [] = $row;
+	
+	echo json_encode($filas);
+}
+
+function listarSinDuplicado($db){	
+	$filas = [];
+	$sql=$db->prepare("SELECT p.* FROM `proveedor` p
+	where p.activo = 1
+	group by trim(ruc)
 	order by razon asc;");
 	$sql->execute();
 	while($row = $sql->fetch(PDO::FETCH_ASSOC))
@@ -159,4 +174,28 @@ function listarSinRepetir($db){
 		$filas [] = $row;
 	
 	echo json_encode($filas);
+}
+
+function listarRUC($db){	
+	$filas = [];
+	$filasOrden = [];
+	$sql=$db->prepare("SELECT `id`, trim(`ruc`) as ruc, trim(`razon`) as razon, `direccionDestino`, `celular`, `atencion`, `correo`, `referencia` FROM `proveedor`
+	where trim(ruc) = ? and razon<>'' and activo = 1
+	group by trim(ruc), trim(razon)
+	order by razon asc LIMIT 1;");
+	$sql->execute([ $_POST['ruc'] ]);
+	$row = $sql->fetch(PDO::FETCH_ASSOC);
+	$filas [] = $row;
+
+	$sqlOrden=$db->prepare("SELECT oc.* FROM `orden_cabecera` oc
+	inner join proveedor p on p.id = oc.idProveedor
+	where trim(p.ruc) = ? and oc.activo = 1;");
+	$sqlOrden->execute([ $_POST['ruc'] ]);
+	while($rowOrden = $sqlOrden->fetch(PDO::FETCH_ASSOC))
+		$filasOrden [] = $rowOrden;
+	
+	echo json_encode(array(
+		'cabecera' => $filas[0],
+		'datos' => $filasOrden
+	));
 }

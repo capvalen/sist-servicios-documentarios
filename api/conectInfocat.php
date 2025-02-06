@@ -18,6 +18,8 @@ try {
 }
 
 //https://grupocimalperu.com/intranet/api/
+//https://gandrade.com.pe/intranet/api/
 //http://sist-documentario.test/api/
+
 //
 ?>

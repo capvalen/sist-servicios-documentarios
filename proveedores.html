@@ -94,7 +94,7 @@
 						<th>N°</th>
 						<th>R.U.C.</th>
 						<th>Razón Social</th>
-						<th>Cod. Órden de Servicio</th>
+						
 						<th class="d-print-none" v-if="verificarAcceso()">Acciones</th>
 					</thead>
 					<tbody>
@@ -102,9 +102,8 @@
 							<td>{{index+1}}</td>
 							<td class="text-uppercase">{{tarea.ruc}}</td>
 							<td class="text-capitalize">
-								<a :href="'detalle-proveedor.html?id='+tarea.id" class="text-decoration-none">{{tarea.razon}}</a>
+								<a :href="'detalle-proveedor.html?ruc='+tarea.ruc" class="text-decoration-none">{{tarea.razon}}</a>
 							</td>
-							<td><a class="text-decoration-none" :href="'detalle-orden.html?modo=editar&idOrden='+tarea.idOrden">{{tarea.codigo}}</a></td>
 							<td class="d-flex d-grid gap-2 d-print-none" v-if="verificarAcceso()">
 								<button class="btn btn-sm btn-light text-secondary" @click="prepararEditar(index)" data-bs-toggle="modal" data-bs-target="#modalNuevo"><i class="bi bi-pencil-square"></i></button>
 								<button class="btn btn-sm btn-light text-secondary" @click="borrar(index)"><i class="bi bi-trash3"></i></button>
@@ -177,7 +176,7 @@
 
 				function pedirDatos(){
 					axios.post(servidor + 'Proveedor.php',{
-						pedir:'listar',
+						pedir:'listarSinDuplicado',
 						idUsuario: localStorage.getItem('idUsuario'),
 						nivel: localStorage.getItem('nivel'),
 						categoria: 2 //venta
