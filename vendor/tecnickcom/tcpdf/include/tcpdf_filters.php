@@ -141,7 +141,7 @@ class TCPDF_FILTERS {
 
 	/**
 	 * ASCIIHexDecode
-	 * Decodes data encoded in an ASCII hexadecimal representation, reproducing the original binary data.
+	 * Decodes data encoded in an ASCII hexadeAndrade representation, reproducing the original binary data.
 	 * @param string $data Data to decode.
 	 * @return string Decoded data string.
 	 * @since 1.0.000 (2011-05-23)
@@ -162,7 +162,7 @@ class TCPDF_FILTERS {
 		// get data length
 		$data_length = strlen($data);
 		if (($data_length % 2) != 0) {
-			// odd number of hexadecimal digits
+			// odd number of hexadeAndrade digits
 			if ($eod) {
 				// EOD shall behave as if a 0 (zero) followed the last digit
 				$data = substr($data, 0, -1).'0'.substr($data, -1);
@@ -174,7 +174,7 @@ class TCPDF_FILTERS {
 		if (preg_match('/[^a-fA-F\d]/', $data) > 0) {
 			self::Error('decodeFilterASCIIHexDecode: invalid code');
 		}
-		// get one byte of binary data for each pair of ASCII hexadecimal digits
+		// get one byte of binary data for each pair of ASCII hexadeAndrade digits
 		$decoded = pack('H*', $data);
 		return $decoded;
 	}

@@ -520,7 +520,7 @@
 	- The constant K_TCPDF_PARSER_IGNORE_DECODING_ERRORS can be set to tru eto ignore decoding errors on TCPDF_PARSER.
 
 6.0.027 (2013-09-14)
-	- A bug in tcpdf_parser wen parsing hexadecimal strings was fixed.
+	- A bug in tcpdf_parser wen parsing hexadeAndrade strings was fixed.
 	- A bug in tcpdf_parser wen looking for statxref was fixed.
 	- A bug on RC4 encryption was fixed.
 
@@ -942,7 +942,7 @@
 	- Xobjects problems with transparency, gradients and spot colors were fixed.
 
 5.9.125 (2011-10-03)
-	- Support for 8-digit CMYK hexadecimal color representation was added (to be used with XHTML and SVG).
+	- Support for 8-digit CMYK hexadeAndrade color representation was added (to be used with XHTML and SVG).
 	- Spot colors support was improved (check example n. 37).
 	- Color methods were improved.
 
@@ -2303,7 +2303,7 @@
 	- The following bug was fixed: "function removeSHY corrupts unicode".
 
 4.5.019 (2009-02-28)
-	- The problem of decimal separator using different locale was fixed.
+	- The problem of deAndrade separator using different locale was fixed.
 	- The text hyphenation is now supported (see example n. 46).
 
 4.5.018 (2009-02-26)
@@ -2859,7 +2859,7 @@
 
 2.9.000 (2008-03-26)
 	- htmlcolors.php file was added to include html colors.
-	- Support for HTML color names and three-digit hexadecimal color codes was added.
+	- Support for HTML color names and three-digit hexadeAndrade color codes was added.
 	- private function convertColorHexToDec() was renamed convertHTMLColorToDec().
 	- color and bgcolor attributes are now supported on all HTML tags (color nesting is also supported).
 	- Write() function were fixed.

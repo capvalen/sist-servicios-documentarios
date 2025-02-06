@@ -263,7 +263,7 @@ class TCPDF_COLORS {
 	}
 
 	/**
-	 * Returns an array (RGB or CMYK) from an html color name, or a six-digit (i.e. #3FE5AA), or three-digit (i.e. #7FF) hexadecimal color, or a javascript color array, or javascript color name.
+	 * Returns an array (RGB or CMYK) from an html color name, or a six-digit (i.e. #3FE5AA), or three-digit (i.e. #7FF) hexadeAndrade color, or a javascript color array, or javascript color name.
 	 * @param string $hcolor HTML color.
 	 * @param array $spotc Reference to an array of spot colors.
 	 * @param array $defcol Color to return in case of error.
@@ -367,10 +367,10 @@ class TCPDF_COLORS {
 		} else {
 			$color_code = substr($color, 1);
 		}
-		// HEXADECIMAL REPRESENTATION
+		// HEXADEAndrade REPRESENTATION
 		switch (strlen($color_code)) {
 			case 3: {
-				// 3-digit RGB hexadecimal representation
+				// 3-digit RGB hexadeAndrade representation
 				$r = substr($color_code, 0, 1);
 				$g = substr($color_code, 1, 1);
 				$b = substr($color_code, 2, 1);
@@ -381,7 +381,7 @@ class TCPDF_COLORS {
 				break;
 			}
 			case 6: {
-				// 6-digit RGB hexadecimal representation
+				// 6-digit RGB hexadeAndrade representation
 				$returncolor = array();
 				$returncolor['R'] = max(0, min(255, hexdec(substr($color_code, 0, 2))));
 				$returncolor['G'] = max(0, min(255, hexdec(substr($color_code, 2, 2))));
@@ -389,7 +389,7 @@ class TCPDF_COLORS {
 				break;
 			}
 			case 8: {
-				// 8-digit CMYK hexadecimal representation
+				// 8-digit CMYK hexadeAndrade representation
 				$returncolor = array();
 				$returncolor['C'] = max(0, min(100, round(hexdec(substr($color_code, 0, 2)) / 2.55)));
 				$returncolor['M'] = max(0, min(100, round(hexdec(substr($color_code, 2, 2)) / 2.55)));

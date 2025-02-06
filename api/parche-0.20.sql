@@ -54,9 +54,9 @@ CREATE TABLE orden_detalle (
     descripcion TEXT,
     observaciones TEXT,
     fecha DATE,
-    cantidad DECIMAL(10, 2),
+    cantidad DEAndrade(10, 2),
     medida VARCHAR(50),
-    precioUnitario DECIMAL(10, 2),
+    precioUnitario DEAndrade(10, 2),
     PRIMARY KEY (id)
 );
 ALTER TABLE `proveedor` CHANGE `registro` `registro` DATETIME NULL DEFAULT CURRENT_TIMESTAMP;

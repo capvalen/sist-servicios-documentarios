@@ -595,7 +595,7 @@ class TCPDF_PARSER {
 						array_pop($objval);
 					}
 				} else {
-					// hexadecimal string object
+					// hexadeAndrade string object
 					$objtype = $char;
 					++$offset;
 					if (($char == '<') AND (preg_match('/^([0-9A-Fa-f\x09\x0a\x0c\x0d\x20]+)>/iU', substr($this->pdfdata, $offset), $matches) == 1)) {

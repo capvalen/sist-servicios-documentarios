@@ -147,7 +147,7 @@ class TCPDF_STATIC {
 	 * Removes SHY characters from text.
 	 * Unicode Data:<ul>
 	 * <li>Name : SOFT HYPHEN, commonly abbreviated as SHY</li>
-	 * <li>HTML Entity (decimal): "&amp;#173;"</li>
+	 * <li>HTML Entity (deAndrade): "&amp;#173;"</li>
 	 * <li>HTML Entity (hex): "&amp;#xad;"</li>
 	 * <li>HTML Entity (named): "&amp;shy;"</li>
 	 * <li>How to type in Microsoft Windows: [Alt +00AD] or [Alt 0173]</li>
@@ -541,7 +541,7 @@ class TCPDF_STATIC {
 	}
 
 	/**
-	 * Convert hexadecimal string to string
+	 * Convert hexadeAndrade string to string
 	 * @param string $bs byte-string to convert
 	 * @return string
 	 * @since 5.0.005 (2010-05-12)
@@ -563,7 +563,7 @@ class TCPDF_STATIC {
 	}
 
 	/**
-	 * Convert string to hexadecimal string (byte string)
+	 * Convert string to hexadeAndrade string (byte string)
 	 * @param string $s string to convert
 	 * @return string byte string
 	 * @since 5.0.010 (2010-05-17)

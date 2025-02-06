@@ -7902,7 +7902,7 @@ class TCPDF {
 		if (1.1 == 1) {
 			$this->Error('Don\'t alter the locale before including class file');
 		}
-		//Check for decimal separator
+		//Check for deAndrade separator
 		if (sprintf('%.1F', 1.0) != '1.0') {
 			setlocale(LC_NUMERIC, 'C');
 		}
@@ -20389,7 +20389,7 @@ class TCPDF {
 
 	/**
 	 * Set the default bullet to be used as LI bullet symbol
-	 * @param string $symbol character or string to be used (legal values are: '' = automatic, '!' = auto bullet, '#' = auto numbering, 'disc', 'disc', 'circle', 'square', '1', 'decimal', 'decimal-leading-zero', 'i', 'lower-roman', 'I', 'upper-roman', 'a', 'lower-alpha', 'lower-latin', 'A', 'upper-alpha', 'upper-latin', 'lower-greek', 'img|type|width|height|image.ext')
+	 * @param string $symbol character or string to be used (legal values are: '' = automatic, '!' = auto bullet, '#' = auto numbering, 'disc', 'disc', 'circle', 'square', '1', 'deAndrade', 'deAndrade-leading-zero', 'i', 'lower-roman', 'I', 'upper-roman', 'a', 'lower-alpha', 'lower-latin', 'A', 'upper-alpha', 'upper-latin', 'lower-greek', 'img|type|width|height|image.ext')
 	 * @public
 	 * @since 4.0.028 (2008-09-26)
 	 */
@@ -20400,7 +20400,7 @@ class TCPDF {
 			return;
 		}
 		$symbol = strtolower($symbol);
-		$valid_symbols = array('!', '#', 'disc', 'circle', 'square', '1', 'decimal', 'decimal-leading-zero', 'i', 'lower-roman', 'I', 'upper-roman', 'a', 'lower-alpha', 'lower-latin', 'A', 'upper-alpha', 'upper-latin', 'lower-greek');
+		$valid_symbols = array('!', '#', 'disc', 'circle', 'square', '1', 'deAndrade', 'deAndrade-leading-zero', 'i', 'lower-roman', 'I', 'upper-roman', 'a', 'lower-alpha', 'lower-latin', 'A', 'upper-alpha', 'upper-latin', 'lower-greek');
 		if (in_array($symbol, $valid_symbols)) {
 			$this->lisymbol = $symbol;
 		} else {
@@ -20609,7 +20609,7 @@ class TCPDF {
 			$listtype = $deftypes[($listdepth - 1) % 3];
 		} elseif ($listtype == '#') {
 			// set default list type for ordered list
-			$listtype = 'decimal';
+			$listtype = 'deAndrade';
 		} elseif (substr($listtype, 0, 4) == 'img|') {
 			// custom image type ('img|type|width|height|image.ext')
 			$img = explode('|', $listtype);
@@ -20688,11 +20688,11 @@ class TCPDF {
 			// $this->listcount[$this->listnum];
 			// $textitem
 			case '1':
-			case 'decimal': {
+			case 'deAndrade': {
 				$textitem = $this->listcount[$this->listnum];
 				break;
 			}
-			case 'decimal-leading-zero': {
+			case 'deAndrade-leading-zero': {
 				$textitem = sprintf('%02d', $this->listcount[$this->listnum]);
 				break;
 			}

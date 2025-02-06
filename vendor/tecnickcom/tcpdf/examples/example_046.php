@@ -81,7 +81,7 @@ $pdf->Ln(10);
 /*
 Unicode Data for SHY:
 	Name : SOFT HYPHEN, commonly abbreviated as SHY
-	HTML Entity (decimal): &#173;
+	HTML Entity (deAndrade): &#173;
 	HTML Entity (hex): &#xad;
 	HTML Entity (named): &shy;
 	How to type in Microsoft Windows: [Alt +00AD] or [Alt 0173]

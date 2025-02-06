@@ -717,7 +717,7 @@ class TCPDF_FONTS {
 										$c = $k;
 									} else {
 										// 32 bit format
-										// convert to decimal (http://www.unicode.org/faq//utf_bom.html#utf16-4)
+										// convert to deAndrade (http://www.unicode.org/faq//utf_bom.html#utf16-4)
 										//LEAD_OFFSET = (0xD800 - (0x10000 >> 10)) = 55232
 										//SURROGATE_OFFSET = (0x10000 - (0xD800 << 10) - 0xDC00) = -56613888
 										$c = ((55232 + ($k >> 10)) << 10) + (0xDC00 + ($k & 0x3FF)) -56613888;
@@ -1191,7 +1191,7 @@ class TCPDF_FONTS {
 								$c = $k;
 							} else {
 								// 32 bit format
-								// convert to decimal (http://www.unicode.org/faq//utf_bom.html#utf16-4)
+								// convert to deAndrade (http://www.unicode.org/faq//utf_bom.html#utf16-4)
 								//LEAD_OFFSET = (0xD800 - (0x10000 >> 10)) = 55232
 								//SURROGATE_OFFSET = (0x10000 - (0xD800 << 10) - 0xDC00) = -56613888
 								$c = ((55232 + ($k >> 10)) << 10) + (0xDC00 + ($k & 0x3FF)) -56613888;
@@ -1901,7 +1901,7 @@ class TCPDF_FONTS {
 	 * Based on: http://www.faqs.org/rfcs/rfc3629.html
 	 * <pre>
 	 *    Char. number range  |        UTF-8 octet sequence
-	 *       (hexadecimal)    |              (binary)
+	 *       (hexadeAndrade)    |              (binary)
 	 *    --------------------+-----------------------------------------------
 	 *    0000 0000-0000 007F | 0xxxxxxx
 	 *    0000 0080-0000 07FF | 110xxxxx 10xxxxxx

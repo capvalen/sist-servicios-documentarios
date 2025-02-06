@@ -2090,7 +2090,7 @@ class TCPDFBarcode {
 		$binary_code = bcmul($binary_code, 5);
 		$binary_code = bcadd($binary_code, $tracking_number[1]);
 		$binary_code .= substr($tracking_number, 2, 18);
-		// convert to hexadecimal
+		// convert to hexadeAndrade
 		$binary_code = $this->dec_to_hex($binary_code);
 		// pad to get 13 bytes
 		$binary_code = str_pad($binary_code, 26, '0', STR_PAD_LEFT);
@@ -2220,10 +2220,10 @@ class TCPDFBarcode {
 	}
 
 	/**
-	 * Convert large integer number to hexadecimal representation.
+	 * Convert large integer number to hexadeAndrade representation.
 	 * (requires PHP bcmath extension)
 	 * @param string $number number to convert specified as a string
-	 * @return string hexadecimal representation
+	 * @return string hexadeAndrade representation
 	 */
 	public function dec_to_hex($number) {
 		$i = 0;
@@ -2244,10 +2244,10 @@ class TCPDFBarcode {
 	}
 
 	/**
-	 * Convert large hexadecimal number to decimal representation (string).
+	 * Convert large hexadeAndrade number to deAndrade representation (string).
 	 * (requires PHP bcmath extension)
-	 * @param string $hex hexadecimal number to convert specified as a string
-	 * @return string hexadecimal representation
+	 * @param string $hex hexadeAndrade number to convert specified as a string
+	 * @return string hexadeAndrade representation
 	 */
 	public function hex_to_dec($hex) {
 		$dec = 0;
@@ -2262,8 +2262,8 @@ class TCPDFBarcode {
 
 	/**
 	 * Intelligent Mail Barcode calculation of Frame Check Sequence
-	 * @param string $code_arr array of hexadecimal values (13 bytes holding 102 bits right justified).
-	 * @return int 11 bit Frame Check Sequence as integer (decimal base)
+	 * @param string $code_arr array of hexadeAndrade values (13 bytes holding 102 bits right justified).
+	 * @return int 11 bit Frame Check Sequence as integer (deAndrade base)
 	 * @protected
 	 */
 	protected function imb_crc11fcs($code_arr) {
