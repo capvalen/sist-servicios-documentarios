@@ -235,7 +235,7 @@ function filtrar($db){
 	if($_POST['filtro']['codigo']<>null) $filtro .=" and oc.orden like '{$_POST['filtro']['codigo']}'";
 	if($_POST['filtro']['fecha']<>null) $filtro .=" and p.emision like '{$_POST['filtro']['fecha']}'";
 	if($_POST['filtro']['texto']<>null) $filtro .=" and (p.ruc like '{$_POST['filtro']['texto']}' or p.razon like '%{$_POST['filtro']['texto']}%' )";
-
+	//echo $filtro; die();
 	$sqlProveedor = $db->prepare("SELECT p.* from proveedor p
 	inner join orden_cabecera oc on p.id = oc.idProveedor
 	where 1 {$filtro};");

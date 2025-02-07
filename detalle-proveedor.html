@@ -75,7 +75,7 @@
 				<span v-if="verificarAcceso()">Administrador</span><span v-else>Colaborador</span> <a class="text-decoration-none" href="salir.html"><i class="bi bi-door-open"></i> Cerrar sesión</a></small></p>
 			</div>
 			<hr class="opacity-25 d-print-none">
-			<h1 class="text-start">Registro de Cliente: <span class="text-capitalize">{{servicio.razon}}</span></h1>
+			<h1 class="text-start">Registro de Proveedor: <span class="text-capitalize">{{servicio.razon}}</span></h1>
 			<div class="card mb-3">
 				<div class="card-body">
 					<h5 class="fw-bold">Datos iniciales</h5>
@@ -86,167 +86,50 @@
 						</div>
 						<div class="col my-2">
 							<label class="fw-bold">Dirección</label>
-							<p class="mb-0 text-capitalize">{{servicio.direccion}}</p>
+							<p class="mb-0 text-capitalize">{{servicio.direccionDestino}}</p>
 						</div>
 						<div class="col my-2">
 							<label class="fw-bold">Celular</label>
 							<p class="mb-0 text-capitalize">{{servicio.celular}}</p>
 						</div>
-						<div class="col my-2">
-							<label class="fw-bold">Registrado</label>
-							<p class="mb-0 text-capitalize">{{fechaLatamLargo(servicio.registro)}}</p>
-						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="d-flex d-grid justify-content-between my-4" v-if="verificarAcceso()">
-				<button class="btn btn-outline-success d-none" data-bs-toggle="modal" data-bs-target="#modalEditar"><i class="bi bi-pencil-square"></i> Editar valores inciales</button>
-				<button class="btn btn-outline-warning " data-bs-toggle="modal" data-bs-target="#modalAsignar"><i class="bi bi-person-plus"></i> Asignación de usuarios</button>
-			</div>
-
-			<div class="row">
-				<div class="col">
-					<p class="fw-bold">Documentos iniciales</p>
-					<div class="list-group">
-						<a v-for="(documento, index) in documentos" :href="'subidas/'+documento.ruta" target="_blank" class="list-group-item list-group-item-action" aria-current="true">
-							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1 text-capitalize">{{documento.asunto}}</p>
-								<button v-if="verificarAcceso()" class="btn btn-sm btn-outline-danger" @click="retirarDocumento(index, documento.id, documento.ruta, $event)"><i class="bi bi-x-lg"></i> Remover</button>
-							</div>
-							<small class="text-capitalize">Agregado: {{fechaLatamLargo(documento.fecha)}}</small>
-						</a>
-						<a v-if="documentos.length==0" href="#!" class="list-group-item list-group-item-action" aria-current="true">
-							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1">No hay documentos principales</p>
-							</div>
-						</a>
-					</div>
-				</div>
-				<div class="col">
-					<p class="fw-bold">Usuarios con acceso</p>
-					<div class="list-group">
-						<a href="#" v-for="(lector, index) in lectores" class="list-group-item list-group-item-action" aria-current="true">
-							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1 text-capitalize">{{lector.nomUsuario}}</p>
-								<button class="btn btn-sm btn-outline-danger" v-if="verificarAcceso()" @click="restringir(index)"><i class="bi bi-ban"></i> Restringir</button>
-							</div>
-						</a>
-						<a v-if="lectores.length==0" href="#" class="list-group-item list-group-item-action" aria-current="true">
-							<div class="d-flex w-100 justify-content-between">
-								<p class="mb-1">No hay usuarios asignados</p>
-							</div>
-						</a>
-					</div>
-				</div>
-			</div>
-
-			<div class="card my-3">
+			<div class="card mb-3">
 				<div class="card-body">
-					<h5 class="my-3 fw-bold">Respuesta de colaboradores</h5>
-					<div class="my-3 table-responsive">
-						<table class="table table-hover">
-							<thead>
+					<h5 class="fw-bold">Órdenes de compra</h5>
+					<table class="table table-hover">
+						<thead>
+							<tr>
 								<th>N°</th>
-								<th>Asunto</th>
-								<th>Fecha de envío</th>
-								<th>Colborador</th>
-								<th>Documento</th>
-								<th class="d-print-none" v-if="verificarAcceso()">Acciones</th>
-							</thead>
-							<tbody>
-								<tr v-for="(respuesta, index) in respuestas">
-									<td>{{index+1}}</td>
-									<td class="text-capitalize">{{respuesta.asunto}}</td>
-									<td>{{fechaLatam(respuesta.fecha)}}</td>
-									<td class="text-capitalize">{{respuesta.nomUsuario}}</td>
-									<td><a :href="'subidas/'+respuesta.ruta" target="_blank" class="text-decoration-none "><i class="bi bi-file-earmark-arrow-down-fill"></i> Descargar</a></td>
-									<td class="d-flex d-grid gap-1" v-if="verificarAcceso()">
-										<button class="btn btn-sm btn-outline-danger border-0" title="Eliminar adjunto" @click="borrarRespuesta(index)"><i class="bi bi-x-lg"></i></button>
-									</td>
-								</tr>
-								<tr v-if="respuestas.length==0">
-									<td colspan="6">Aún no se registraron respuestas de los colaboradores</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
+								<th>Órden de compra</th>
+								<th>Aprobador</th>
+								<th>Cliente</th>
+								<th>Destino</th>
+								<th>Dirección</th>
+							</tr>
+						</thead>
+						<tbody v-for="(dato, index) in datos">
+							<tr>
+								<td>{{index+1}}</td>
+								<td><a :href="'detalle-orden.html?modo=editar&idOrden='+dato.id" class="text-decoration-none">{{dato.orden}}</a></td>
+								<td>{{dato.aprobador1}}</td>
+								<td>{{dato.razon}}</td>
+								<td>{{dato.ciudadDestino}}</td>
+								<td>{{dato.direccionDestino}}</td>
+							</tr>
+						</tbody>
+					</table>
+
 				</div>
 			</div>
 
-			<div class="card my-2">
-				<div class="card-body">
-					<h5 class="fw-bold">Agregar documento</h5>
-					<p class="my-2">Rellene todos los campos:</p>
-					<div class="row ">
-						<div class="col-6">
-							<label for="">Tipo de ajunto <span class="text-danger">*</span></label>
-							<select class="form-select mb-3" id="sltTipoDocumento" v-model="adjunto.tipo">
-								<option value="1" v-if="verificarAcceso()">Principal</option>
-								<option value="2">Respuesta</option>
-							</select>
-						</div>
-						<div class="col-6">
-							<label for="">Asunto <span class="text-danger">*</span></label>
-							<input type="text" class="form-control mb-3" v-model="adjunto.asunto">
-						</div>
-						<div class="col-6">
-							<label for="">Fecha <span class="text-danger">*</span></label>
-							<input type="date" class="form-control mb-3" v-model="adjunto.fecha">
-						</div>
-						<div class="col-6 my-2">
-							<label for="">Archivo adjunto <span class="text-danger">*</span></label>
-							<input type="file" class="form-control" placeholder="Adjunte su archivo" id="txtArchivo" v-model="adjunto.adjunto">
-						</div>
-						<div class="col-6 offset-4 my-2">
-							<button class="btn btn-dark" type="button" id="btnEnviar" @click="enviarDocumento()"><i class="bi bi-cloud-upload-fill"></i> Enviar adjunto</button>
-						</div>
-					</div>
-				</div>
-			</div>
-
-		</section>
-
-		<section>
-			<div class="modal fade" id="modalAsignar" tabindex="-1" role="dialog" aria-labelledby="asignarUsuariosModalLabel" aria-hidden="true">
-				<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-					<div class="modal-content">
-						<div class="modal-header border-0">
-							<h5 class="modal-title" id="miModalLabel">Asignación de usuarios</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body">
-							<p>Seleccione un usuario para que pueda visualizar los registros.</p>
-							<select class="form-select text-capitalize" v-model="asignarIdUsuario">
-								<option value="-1" checked>Seleccione un usuario</option>
-								<option class="text-capitalize" v-for="usuario in usuarios" :value="usuario.idUsuario" >{{usuario.nombres}} {{usuario.paterno}} {{usuario.materno}}</option>
-							</select>
-						</div>
-						<div class="modal-footer border-0">
-							<button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="addUser()"><i class="bi bi-person-plus"></i> Asignar usuario</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal fade" id="modalEditar" tabindex="-1" role="dialog" aria-labelledby="asignarUsuariosModalLabel" aria-hidden="true">
-				<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-					<div class="modal-content">
-						<div class="modal-header border-0">
-							<h5 class="modal-title" id="miModalLabel">Edición de valores</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						</div>
-						<div class="modal-body">
-							<p>Nombre del servicio principal</p>
-							<input type="text" class="form-control">
-						</div>
-						<div class="modal-footer border-0">
-							<button type="button" class="btn btn-outline-primary" data-dismiss="modal"><i class="bi bi-pencil-square"></i> Editar</button>
-						</div>
-					</div>
-				</div>
-			</div>
 			
+
+
 		</section>
+
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
@@ -263,9 +146,7 @@
 				const usuarios = ref([])
 				const asignarIdUsuario = ref(-1)
 				const servicio = ref([])
-				const lectores = ref([])
-				const documentos = ref([])
-				const respuestas = ref([])
+				const datos = ref([])
 				const adjunto = ref({
 					tipo:2, asunto: '', fecha: moment().format('YYYY-MM-DD'), adjunto:''
 				})
@@ -294,10 +175,9 @@
 								}
 								else{
 									sinAcceso.value=false
-									servicio.value = res.data.cliente
-									lectores.value = res.data.usuarios
-									documentos.value = res.data.documentos
-									respuestas.value = res.data.respuestas
+									servicio.value = res.data.cabecera
+									datos.value = res.data.datos
+									
 								}
 							})
 						}
@@ -309,10 +189,8 @@
 						pedir:'listarRUC',
 						ruc: ruc.value
 					}).then(res=> {
-						servicio.value = res.data.cliente
-						lectores.value = res.data.usuarios
-						documentos.value = res.data.documentos
-						respuestas.value = res.data.respuestas
+						servicio.value = res.data.cabecera
+						datos.value = res.data.datos
 					})
 
 					axios.post(servidor + 'Usuario.php',{
@@ -320,162 +198,6 @@
 					}).then(res=> {
 						usuarios.value = res.data
 					})
-				}
-
-				function addUser(){
-					axios.post(servidor + 'Cliente.php',{
-						pedir:'addUser',
-						idServicio: idServicio,
-						idUsuario: asignarIdUsuario.value,
-						quienAsigna: localStorage.getItem('idUsuario')
-					}).then(res=> {
-						if(res.data == 'ok'){
-							let nombre = usuarios.value.find(x=> x.idUsuario == asignarIdUsuario.value)
-							lectores.value.push({
-								idUsuario: asignarIdUsuario.value,
-								nomUsuario: `${nombre.paterno} ${nombre.materno} ${nombre.nombres}`
-							})
-							Swal.fire({
-								title: 'Usuario agregado con éxito!',
-								icon: 'success'
-							})
-						}else{
-							Swal.fire({
-								title: 'Hubo un error al insertar',
-								icon: 'error'
-							})
-						}
-					})
-				}
-
-				function restringir(index){
-					Swal.fire({
-						title: "¿Desea eliminar el usuario?",
-						icon: "warning",
-						showCancelButton: true,
-						confirmButtonText: "Sí, borrar"
-					}).then((result) => {
-						if (result.isConfirmed) {
-							axios.post(servidor+'Cliente.php',{
-								pedir:'borrarLector',
-								idServicio: idServicio,
-								idUsuario: lectores.value[index].idUsuario
-							}).then(res=>{
-								lectores.value.splice( index, 1)
-								Swal.fire({
-									title: "¡Retirado el acceso al usuario!",
-									icon: "success"
-								});
-							})
-						}
-					});
-				}
-
-				function enviarDocumento(){
-					const inputFile = document.querySelector('#txtArchivo')
-					
-					const formData = new FormData();
-    		  formData.append('pdf', inputFile.files[0]);
-    		  formData.append('idServicio', idServicio);
-    		  formData.append('idUsuario', localStorage.getItem('idUsuario'));
-    		  formData.append('tipo', adjunto.value.tipo);
-    		  formData.append('asunto', adjunto.value.asunto);
-    		  formData.append('fecha', adjunto.value.fecha);
-    		  formData.append('grupo', 7); //idGrupo = 1 => servicios
-
-					axios.post(servidor + 'subidaArchivo.php', formData, {
-						headers: {
-							'Content-Type': 'multipart/form-data'
-						}
-					}).then(res=>{
-						if(res.data.estado=='ok'){
-							if(adjunto.value.tipo==1)
-								documentos.value.push({
-									id: res.data.id,
-									ruta: res.data.subida,
-									tipo: adjunto.value.tipo,
-									asunto: adjunto.value.asunto,
-									nomUsuario: localStorage.getItem('nombreUsuario'),
-									registro: adjunto.value.fecha
-								})
-							if(adjunto.value.tipo==2)
-								respuestas.value.push({
-									id: res.data.id,
-									ruta: res.data.subida,
-									tipo: adjunto.value.tipo,
-									asunto: adjunto.value.asunto,
-									nomUsuario: localStorage.getItem('nombreUsuario'),
-									registro: adjunto.value.fecha
-								})
-							
-							Swal.fire({
-								icon: 'success',
-								title: 'Archivo adjuntado'
-							})
-							inputFile.value=""
-							adjunto.value.asunto=''
-						}else{
-							Swal.fire({
-								icon: 'warning',
-								title: 'No se logró adjuntar su archivo'
-							})
-						}
-					})
-				}
-
-				function retirarDocumento(index, id, ruta, event){
-					event.stopPropagation()
-					event.preventDefault()
-					Swal.fire({
-						title: "¿Desea eliminar el documento adjunto?",
-						icon: "warning",
-						showCancelButton: true,
-						confirmButtonColor: "#d33",
-						confirmButtonText: "Si, eliminar"
-					}).then((result) => {
-						if (result.isConfirmed) {
-							axios.post(servidor + 'eliminarArchivo.php',{
-								pedir: 'eliminarAdjunto',
-								idAdjunto: id,
-								ruta
-							}).then(res=>{
-								if(res.data.estado == 'eliminado'){
-									documentos.value.splice(index, 1)
-									Swal.fire({
-										title: "Archivo borrado",
-										icon: "success"
-									});
-								}
-							})
-							
-						}
-					});
-				}
-
-				function borrarRespuesta(index){
-					Swal.fire({
-						title: "¿Desea eliminar la respuesta?",
-						icon: "warning",
-						showCancelButton: true,
-						confirmButtonColor: "#d33",
-						confirmButtonText: "Si, eliminar"
-					}).then((result) => {
-						if (result.isConfirmed) {
-							axios.post(servidor + 'Cliente.php',{
-								pedir: 'eliminarRespuesta',
-								idRespuesta: respuestas.value[index].id
-							}).then(res=>{
-								if(res.data == 'ok'){
-									respuestas.value.splice(index, 1)
-									Swal.fire({
-										title: "Archivo borrado",
-										icon: "success"
-									});
-								}
-							})
-							
-						}
-					});
 				}
 				
 				function fechaLatam(fecha){
@@ -493,7 +215,7 @@
 				function nombreCompletoSesion(){ return localStorage.getItem('nombreUsuario') }
 
 				return {
-					servidor, servicio, fechaLatamLargo, fechaLatam, usuarios, asignarIdUsuario, lectores, addUser, restringir, sinAcceso, verificarAcceso, adjunto, enviarDocumento, documentos, retirarDocumento, respuestas, borrarRespuesta, nombreCompletoSesion, ruc
+					servidor, servicio, fechaLatamLargo, fechaLatam, usuarios, sinAcceso, verificarAcceso, nombreCompletoSesion, ruc, datos
 				}
 			}
 		}).mount('#app')
